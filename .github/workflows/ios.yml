@@ -15,8 +15,8 @@ jobs:
 
       - run: npm ci
 
-      - run: npx expo prebuild --platform ios --no-install
-
+      - run: npx expo prebuild --platform ios
+      
       - run: xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release -sdk iphoneos -archivePath ios/build/TRUTH.xcarchive archive CODE_SIGNING_ALLOWED=NO
 
       - run: |
