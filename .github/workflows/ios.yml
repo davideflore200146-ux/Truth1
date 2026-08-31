@@ -1,4 +1,3 @@
-```yaml
 name: Build TRUTH iOS
 
 on:
@@ -29,7 +28,7 @@ jobs:
           cd ios
           xcodebuild \
             -workspace *.xcworkspace \
-            -scheme TRUTH \
+            -scheme Runner \
             -configuration Release \
             -sdk iphoneos \
             -archivePath build/TRUTH.xcarchive \
@@ -47,4 +46,3 @@ jobs:
         with:
           name: TRUTH-IPA
           path: TRUTH.ipa
-```
