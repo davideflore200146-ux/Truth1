@@ -30,7 +30,7 @@ jobs:
           find ios -name "*.xcworkspace" -o -name "*.xcodeproj"
 
       - name: Build iOS
-        run: xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release -sdk iphoneos -archivePath ios/build/TRUTH.xcarchive archive CODE_SIGNING_ALLOWED=NO
+        run: xcodebuild -project ios/Runner.xcodeproj -scheme Runner -configuration Release -sdk iphoneos -archivePath ios/build/TRUTH.xcarchive archive CODE_SIGNING_ALLOWED=NO
 
       - name: Create IPA
         run: |
