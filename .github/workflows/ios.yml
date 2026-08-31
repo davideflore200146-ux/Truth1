@@ -24,10 +24,10 @@ jobs:
 
       - name: Check iOS project
         run: |
-          echo "=== ROOT ==="
-          ls -la
-          echo "=== IOS ==="
-          ls -la ios
+          echo "=== IOS CONTENT ==="
+          find ios -maxdepth 2 -type f | sort
+          echo "=== WORKSPACES ==="
+          find ios -name "*.xcworkspace" -o -name "*.xcodeproj"
 
       - name: Build iOS
         run: xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release -sdk iphoneos -archivePath ios/build/TRUTH.xcarchive archive CODE_SIGNING_ALLOWED=NO
