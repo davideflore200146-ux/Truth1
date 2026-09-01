@@ -5,6 +5,7 @@ on:
 
 jobs:
   build:
+    name: Build TRUTH
     runs-on: macos-latest
 
     steps:
@@ -15,23 +16,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate iOS Project
+      - name: Generate native iOS project
         run: npx expo prebuild --platform ios --clean
 
       - name: Install CocoaPods
         working-directory: ios
         run: pod install --repo-update
 
-      - name: Build iOS Archive
+      - name: Build Release archive
         run: |
           xcodebuild \
             -workspace ios/TRUTH.xcworkspace \
             -scheme TRUTH \
-            -configuration Debug \
+            -configuration Release \
             -sdk iphoneos \
             -archivePath ios/build/TRUTH.xcarchive \
             archive \
@@ -50,16 +52,16 @@ jobs:
           cd ios/build/ipa
           zip -r ../TRUTH.ipa Payload
 
-      - name: Check IPA
+      - name: Verify IPA
         run: |
-          echo "=== IPA ==="
+          echo "IPA created:"
           ls -lh ios/build/TRUTH.ipa
 
-          echo "=== CONTENT ==="
-          unzip -l ios/build/TRUTH.ipa | head -30
+          echo "IPA structure:"
+          unzip -l ios/build/TRUTH.ipa | head -40
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: TRUTH-IPA
+          name: TRUTH-IPA-RELEASE
           path: ios/build/TRUTH.ipa
