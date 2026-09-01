@@ -25,13 +25,12 @@ jobs:
 
       - name: Check Generated Files
         run: |
-          echo "=== ROOT ==="
+          echo "ROOT:"
           pwd
-          ls -la
-          echo "=== IOS DIRECTORY ==="
+          echo "IOS:"
           ls -la ios
-          echo "=== XCODE FILES ==="
-          find ios -maxdepth 2 \( -name "*.xcworkspace" -o -name "*.xcodeproj" \) -print
+          echo "XCODE:"
+          find ios -maxdepth 2 \( -name "*.xcodeproj" -o -name "*.xcworkspace" \) -print
 
       - name: Build iOS
         run: |
@@ -47,7 +46,7 @@ jobs:
       - name: Create IPA
         run: |
           rm -rf Payload
-          mkdir -p Payload
+          mkdir Payload
           cp -R ios/build/TRUTH.xcarchive/Products/Applications/TRUTH.app Payload/TRUTH.app
           cd Payload
           zip -r ../TRUTH.ipa TRUTH.app
