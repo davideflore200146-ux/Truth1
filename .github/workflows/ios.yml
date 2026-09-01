@@ -43,4 +43,3 @@ jobs:
         with:
           name: TRUTH-IPA
           path: TRUTH.ipa
-```
