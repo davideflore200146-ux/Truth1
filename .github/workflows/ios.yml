@@ -26,18 +26,7 @@ jobs:
         working-directory: ios
         run: pod install --repo-update
 
-      - name: Check Generated Files
-        run: |
-          echo "=== IOS DIRECTORY ==="
-          ls -la ios
-
-          echo "=== WORKSPACE ==="
-          ls -la ios/TRUTH.xcworkspace
-
-          echo "=== XCODE PROJECT ==="
-          ls -la ios/TRUTH.xcodeproj
-
-      - name: Build iOS
+      - name: Build iOS Archive
         run: |
           xcodebuild \
             -workspace ios/TRUTH.xcworkspace \
@@ -46,20 +35,39 @@ jobs:
             -sdk iphoneos \
             -archivePath ios/build/TRUTH.xcarchive \
             archive \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
 
-      - name: Create IPA
+      - name: Create Export Options
         run: |
-          rm -rf Payload
-          mkdir -p Payload
+          cat > ios/exportOptions.plist <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>development</string>
+              <key>signingStyle</key>
+              <string>automatic</string>
+          </dict>
+          </plist>
+          EOF
 
-          cp -R ios/build/TRUTH.xcarchive/Products/Applications/TRUTH.app Payload/TRUTH.app
+      - name: Export IPA
+        run: |
+          xcodebuild \
+            -exportArchive \
+            -archivePath ios/build/TRUTH.xcarchive \
+            -exportPath ios/build/export \
+            -exportOptionsPlist ios/exportOptions.plist
 
-          cd Payload
-          zip -r ../TRUTH.ipa TRUTH.app
+      - name: Find IPA
+        run: |
+          echo "=== GENERATED FILES ==="
+          find ios/build -type f -name "*.ipa" -print
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: TRUTH-IPA
-          path: TRUTH.ipa
+          path: ios/build/export/*.ipa
