@@ -1,3 +1,4 @@
+import './src/i18n';
 import React, { useState, useCallback } from 'react';
 import { useEffect } from 'react';
 import { SafeAreaView, View, Alert } from 'react-native';
