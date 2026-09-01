@@ -48,12 +48,13 @@ jobs:
             ios/build/ipa/Payload/TRUTH.app
 
           cd ios/build/ipa
-          zip -r ../../TRUTH.ipa Payload
+          zip -r ../TRUTH.ipa Payload
 
       - name: Check IPA
         run: |
           echo "=== IPA ==="
           ls -lh ios/build/TRUTH.ipa
+
           echo "=== CONTENT ==="
           unzip -l ios/build/TRUTH.ipa | head -30
 
