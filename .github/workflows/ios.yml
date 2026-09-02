@@ -1,11 +1,3 @@
 name: Test TRUTH
-
-on:
-workflow_dispatch:
-
-jobs:
-test:
-runs-on: macos-latest
-steps:
-- run: echo "TRUTH WORKFLOW OK"
-
+on: {workflow_dispatch: {}}
+jobs: {test: {runs-on: macos-latest, steps: [{run: 'echo TRUTH WORKFLOW OK'}]}}
