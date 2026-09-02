@@ -19,7 +19,7 @@ return ( <View style={styles.nav}>
 {TABS.map((item) => {
 const active = tab === item.id;
 
-```
+
     return (
       <TouchableOpacity
         key={item.id}
@@ -48,7 +48,7 @@ const active = tab === item.id;
     );
   })}
 </View>
-```
+
 
 );
 }
