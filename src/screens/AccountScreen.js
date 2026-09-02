@@ -40,7 +40,7 @@ return (
           </Text>
         ) : (
           <Text style={styles.plusPrice}>
-            €5,99/{t('premium.monthly')}
+            t('premium.monthly')
           </Text>
         )}
       </View>
