@@ -3,25 +3,14 @@
  * -----------------------------------------------------
  * Libreria: i18next + react-i18next (React Native)
  *
- * Installazione:
- *   npm install i18next react-i18next react-native-localize
- *
- * Uso in un componente:
- *   import { useTranslation } from 'react-i18next';
- *   const { t } = useTranslation();
- *   <Text>{t('verdict.buy')}</Text>
- *
- * Lingue incluse:
+ * Lingue supportate:
  *   it — Italiano
  *   en — English
+ *   sc — Sardu (Limba Sarda Comuna)
  *   es — Español
  *   fr — Français
  *   de — Deutsch
  *   pt — Português
- *   sc — Sardu (Limba Sarda Comuna)
- *
- * La lingua del dispositivo viene rilevata automaticamente.
- * Se la lingua non è supportata, viene utilizzato l'inglese.
  */
 
 import i18n from 'i18next';
@@ -68,12 +57,35 @@ const resources = {
           'TRUTH ti aiuta a capire se un prezzo è davvero conveniente.',
       },
 
+      analyzing: {
+        message1: 'Sto analizzando il prodotto…',
+        message2: 'Cerco il prezzo attuale sul web…',
+        message3: 'Confronto i prezzi tra i negozi…',
+        message4: 'Leggo le recensioni…',
+        message5: 'Verifico eventuali anomalie…',
+      },
+
       result: {
         truthScore: 'Truth Score',
         currentPrice: 'Prezzo attuale',
         fairPrice: 'Prezzo giusto',
         potentialSaving: 'Risparmio potenziale',
         explanation: 'Spiegazione',
+        upTo: 'fino a',
+        why: 'Perché?',
+        priceTrend: 'Andamento prezzo',
+        noPriceHistory: 'Dati storici non disponibili per questo prodotto.',
+        alternatives: 'Potresti considerare anche…',
+        userReviews: 'Cosa dicono gli utenti',
+        truthCheck: 'C’è qualcosa che non torna?',
+        bestOffers: 'Migliori offerte',
+        shipping: 'Spedizione:',
+        go: 'Vai',
+        priceAlert: 'Price alert',
+        alertMeAt: 'Avvisami a €{{price}}',
+        alertDescription: 'Ti avviseremo quando il prezzo raggiungerà questo valore.',
+        activate: 'Attiva',
+        askTruth: 'Chiedi a TRUTH',
       },
 
       verdict: {
@@ -101,17 +113,27 @@ const resources = {
 
       wishlist: {
         title: 'I miei prodotti',
+        empty: 'Nessun prodotto salvato ancora.',
+        monitored: 'Monitorato',
+        monitoredTarget: 'Monitorato · target €{{price}}',
         addAlert: 'Aggiungi avviso prezzo',
         targetPrice: 'Prezzo obiettivo',
       },
 
       history: {
         title: 'Le mie analisi',
+        empty: 'Nessuna analisi ancora. Torna alla Home per iniziare.',
       },
 
       chat: {
         title: 'Chiedi a TRUTH',
-        placeholder: 'Fai una domanda su questo prodotto…',
+        placeholder: 'Scrivi una domanda…',
+        suggestionWhy: 'Perché dici questo?',
+        suggestionAlternative: 'Qual è l’alternativa migliore?',
+        suggestionWait: 'Conviene aspettare ancora?',
+        welcome:
+          'Chiedimi qualsiasi cosa su questo prodotto: prezzo, alternative, tempistiche.',
+        error: 'Non sono riuscito a rispondere: {{error}}',
       },
 
       forMe: {
@@ -137,6 +159,14 @@ const resources = {
         logout: 'Esci',
         settings: 'Impostazioni',
         language: 'Lingua',
+        active: 'ATTIVO',
+        price: '€5,99/mese',
+        description:
+          'Analisi illimitate, storico completo, price alert, AI personalizzata e analisi recensioni avanzata.',
+        activeMessage: '✓ TRUTH PLUS è attivo sul tuo account.',
+        upgrade: 'Passa a PLUS',
+        purchaseTitle: 'TRUTH PLUS',
+        purchaseMessage: 'TRUTH PLUS attivato!',
       },
 
       privacy: {
@@ -155,6 +185,13 @@ const resources = {
         close: 'Chiudi',
         analysisFailed: 'Analisi non riuscita',
         tryAgain: 'Riprova',
+      },
+
+      navigation: {
+        home: 'Home',
+        wishlist: 'Salvati',
+        history: 'Storia',
+        account: 'Account',
       },
     },
   },
@@ -198,12 +235,35 @@ const resources = {
           'TRUTH helps you understand whether a price is really worth it.',
       },
 
+      analyzing: {
+        message1: 'I’m analyzing the product…',
+        message2: 'Checking the current price on the web…',
+        message3: 'Comparing prices across stores…',
+        message4: 'Reading reviews…',
+        message5: 'Checking for anomalies…',
+      },
+
       result: {
         truthScore: 'Truth Score',
         currentPrice: 'Current price',
         fairPrice: 'Fair price',
         potentialSaving: 'Potential saving',
         explanation: 'Explanation',
+        upTo: 'up to',
+        why: 'Why?',
+        priceTrend: 'Price trend',
+        noPriceHistory: 'Historical data is not available for this product.',
+        alternatives: 'You might also consider…',
+        userReviews: 'What users say',
+        truthCheck: 'Is something off?',
+        bestOffers: 'Best offers',
+        shipping: 'Shipping:',
+        go: 'Go',
+        priceAlert: 'Price alert',
+        alertMeAt: 'Alert me at ${{price}}',
+        alertDescription: 'We’ll notify you when the price reaches this value.',
+        activate: 'Activate',
+        askTruth: 'Ask TRUTH',
       },
 
       verdict: {
@@ -231,17 +291,27 @@ const resources = {
 
       wishlist: {
         title: 'My products',
+        empty: 'No products saved yet.',
+        monitored: 'Monitored',
+        monitoredTarget: 'Monitored · target ${{price}}',
         addAlert: 'Add price alert',
         targetPrice: 'Target price',
       },
 
       history: {
         title: 'My analyses',
+        empty: 'No analyses yet. Go back to Home to get started.',
       },
 
       chat: {
         title: 'Ask TRUTH',
-        placeholder: 'Ask a question about this product…',
+        placeholder: 'Write a question…',
+        suggestionWhy: 'Why do you say that?',
+        suggestionAlternative: 'What is the best alternative?',
+        suggestionWait: 'Should I wait a little longer?',
+        welcome:
+          'Ask me anything about this product: price, alternatives, timing.',
+        error: 'I couldn’t answer: {{error}}',
       },
 
       forMe: {
@@ -267,6 +337,14 @@ const resources = {
         logout: 'Log out',
         settings: 'Settings',
         language: 'Language',
+        active: 'ACTIVE',
+        price: '$5.99/month',
+        description:
+          'Unlimited analyses, full history, price alerts, personalized AI and advanced review analysis.',
+        activeMessage: '✓ TRUTH PLUS is active on your account.',
+        upgrade: 'Upgrade to PLUS',
+        purchaseTitle: 'TRUTH PLUS',
+        purchaseMessage: 'TRUTH PLUS activated!',
       },
 
       privacy: {
@@ -285,6 +363,13 @@ const resources = {
         close: 'Close',
         analysisFailed: 'Analysis failed',
         tryAgain: 'Try again',
+      },
+
+      navigation: {
+        home: 'Home',
+        wishlist: 'Saved',
+        history: 'History',
+        account: 'Account',
       },
     },
   },
@@ -333,12 +418,37 @@ const resources = {
           "TRUTH t'agiudat a cumprèndere si unu prètziu est beru cunveniente.",
       },
 
+      analyzing: {
+        message1: 'So analizende su prodùtu…',
+        message2: 'So chirchende su prètziu atuale in sa web…',
+        message3: 'So cunfrontende is prètzios tra is buteghas…',
+        message4: 'So ligende is recensiones…',
+        message5: 'So verificande eventuales anomalìas…',
+      },
+
       result: {
         truthScore: 'Truth Score',
         currentPrice: 'Prètziu de oe',
         fairPrice: 'Prètziu giustu',
         potentialSaving: 'Sparàgniu possìbile',
         explanation: 'Ispiegatzione',
+        upTo: 'finas a',
+        why: 'Pro ite?',
+        priceTrend: 'Andamentu de su prètziu',
+        noPriceHistory:
+          'Datus istòricos no disponìbiles pro custu prodùtu.',
+        alternatives: 'Podias cunsiderare fintzas…',
+        userReviews: 'Ite narant is utentes',
+        truthCheck: 'B’est carchi cosa chi no torrat?',
+        bestOffers: 'Is ofertas mègius',
+        shipping: 'Speditzione:',
+        go: 'Bae',
+        priceAlert: 'Alerta de prètziu',
+        alertMeAt: 'Avìsame a €{{price}}',
+        alertDescription:
+          'T’amos avisadu cando su prètziu at a arribare a custu valore.',
+        activate: 'Ativa',
+        askTruth: 'Pregunta a TRUTH',
       },
 
       verdict: {
@@ -366,18 +476,28 @@ const resources = {
 
       wishlist: {
         title: 'Is prodùtos meos',
+        empty: 'Perunu prodùtu sarvadu ancora.',
+        monitored: 'Monitoradu',
+        monitoredTarget: 'Monitoradu · obietivu €{{price}}',
         addAlert: 'Agiunghe alerta de prètziu',
         targetPrice: 'Prètziu obietivu',
       },
 
       history: {
         title: 'Is analisis meas',
+        empty:
+          'Peruna analisi ancora. Torra a sa Home pro incumentzare.',
       },
 
       chat: {
         title: 'Preguntai a TRUTH',
-        placeholder:
-          'Fai una pregunta subra de custu prodùtu…',
+        placeholder: 'Iscrie una pregunta…',
+        suggestionWhy: 'Pro ite naras custu?',
+        suggestionAlternative: 'Cale est s’alternativa mègius?',
+        suggestionWait: 'Cunvenit abetare ancora?',
+        welcome:
+          'Preguntami calecunu cosa subra de custu prodùtu: prètziu, alternativas, tempus.',
+        error: 'No apo resèssidu a rispòndere: {{error}}',
       },
 
       forMe: {
@@ -403,6 +523,15 @@ const resources = {
         logout: 'Essi',
         settings: 'Cunfiguratziones',
         language: 'Limba',
+        active: 'ATIVU',
+        price: '5,99 €/mese',
+        description:
+          'Analisis chena lìmite, istòria intrea, alertas de prètziu, AI personalizada e analisi avanzada de is recensiones.',
+        activeMessage:
+          '✓ TRUTH PLUS est ativu in su contu tuo.',
+        upgrade: 'Passa a PLUS',
+        purchaseTitle: 'TRUTH PLUS',
+        purchaseMessage: 'TRUTH PLUS ativadu!',
       },
 
       privacy: {
@@ -421,6 +550,13 @@ const resources = {
         close: 'Sèrra',
         analysisFailed: 'S’analisi no est arrenèssida',
         tryAgain: 'Torra a proare',
+      },
+
+      navigation: {
+        home: 'Home',
+        wishlist: 'Sarvados',
+        history: 'Istòria',
+        account: 'Account',
       },
     },
   },
@@ -469,12 +605,37 @@ const resources = {
           'TRUTH te ayuda a saber si un precio realmente merece la pena.',
       },
 
+      analyzing: {
+        message1: 'Estoy analizando el producto…',
+        message2: 'Buscando el precio actual en la web…',
+        message3: 'Comparando precios entre tiendas…',
+        message4: 'Leyendo reseñas…',
+        message5: 'Verificando posibles anomalías…',
+      },
+
       result: {
         truthScore: 'Truth Score',
         currentPrice: 'Precio actual',
         fairPrice: 'Precio justo',
         potentialSaving: 'Ahorro potencial',
         explanation: 'Explicación',
+        upTo: 'hasta',
+        why: '¿Por qué?',
+        priceTrend: 'Evolución del precio',
+        noPriceHistory:
+          'No hay datos históricos disponibles para este producto.',
+        alternatives: 'También podrías considerar…',
+        userReviews: 'Lo que dicen los usuarios',
+        truthCheck: '¿Hay algo que no encaja?',
+        bestOffers: 'Mejores ofertas',
+        shipping: 'Envío:',
+        go: 'Ir',
+        priceAlert: 'Alerta de precio',
+        alertMeAt: 'Avísame a {{price}} €',
+        alertDescription:
+          'Te avisaremos cuando el precio alcance este valor.',
+        activate: 'Activar',
+        askTruth: 'Pregunta a TRUTH',
       },
 
       verdict: {
@@ -502,18 +663,28 @@ const resources = {
 
       wishlist: {
         title: 'Mis productos',
+        empty: 'No hay productos guardados todavía.',
+        monitored: 'Monitorizado',
+        monitoredTarget: 'Monitorizado · objetivo {{price}} €',
         addAlert: 'Añadir alerta de precio',
         targetPrice: 'Precio objetivo',
       },
 
       history: {
         title: 'Mis análisis',
+        empty:
+          'Todavía no hay análisis. Vuelve a Inicio para comenzar.',
       },
 
       chat: {
         title: 'Pregunta a TRUTH',
-        placeholder:
-          'Haz una pregunta sobre este producto…',
+        placeholder: 'Escribe una pregunta…',
+        suggestionWhy: '¿Por qué dices eso?',
+        suggestionAlternative: '¿Cuál es la mejor alternativa?',
+        suggestionWait: '¿Conviene esperar un poco más?',
+        welcome:
+          'Pregúntame cualquier cosa sobre este producto: precio, alternativas y cuándo comprarlo.',
+        error: 'No pude responder: {{error}}',
       },
 
       forMe: {
@@ -539,6 +710,15 @@ const resources = {
         logout: 'Cerrar sesión',
         settings: 'Ajustes',
         language: 'Idioma',
+        active: 'ACTIVO',
+        price: '5,99 €/mes',
+        description:
+          'Análisis ilimitados, historial completo, alertas de precio, IA personalizada y análisis avanzado de reseñas.',
+        activeMessage:
+          '✓ TRUTH PLUS está activo en tu cuenta.',
+        upgrade: 'Pasar a PLUS',
+        purchaseTitle: 'TRUTH PLUS',
+        purchaseMessage: '¡TRUTH PLUS activado!',
       },
 
       privacy: {
@@ -557,6 +737,13 @@ const resources = {
         close: 'Cerrar',
         analysisFailed: 'Análisis fallido',
         tryAgain: 'Intentar de nuevo',
+      },
+
+      navigation: {
+        home: 'Inicio',
+        wishlist: 'Guardados',
+        history: 'Historial',
+        account: 'Cuenta',
       },
     },
   },
@@ -607,12 +794,37 @@ const resources = {
           'TRUTH vous aide à savoir si un prix en vaut vraiment la peine.',
       },
 
+      analyzing: {
+        message1: 'J’analyse le produit…',
+        message2: 'Je recherche le prix actuel sur le web…',
+        message3: 'Je compare les prix entre les magasins…',
+        message4: 'Je lis les avis…',
+        message5: 'Je vérifie les éventuelles anomalies…',
+      },
+
       result: {
         truthScore: 'Truth Score',
         currentPrice: 'Prix actuel',
         fairPrice: 'Prix juste',
         potentialSaving: 'Économie potentielle',
         explanation: 'Explication',
+        upTo: 'jusqu’à',
+        why: 'Pourquoi ?',
+        priceTrend: 'Évolution du prix',
+        noPriceHistory:
+          'Aucune donnée historique disponible pour ce produit.',
+        alternatives: 'Vous pourriez également considérer…',
+        userReviews: 'Ce que disent les utilisateurs',
+        truthCheck: 'Quelque chose ne va pas ?',
+        bestOffers: 'Meilleures offres',
+        shipping: 'Livraison :',
+        go: 'Voir',
+        priceAlert: 'Alerte de prix',
+        alertMeAt: 'M’alerter à {{price}} €',
+        alertDescription:
+          'Nous vous avertirons lorsque le prix atteindra cette valeur.',
+        activate: 'Activer',
+        askTruth: 'Demander à TRUTH',
       },
 
       verdict: {
@@ -640,18 +852,28 @@ const resources = {
 
       wishlist: {
         title: 'Mes produits',
+        empty: 'Aucun produit enregistré pour le moment.',
+        monitored: 'Surveillé',
+        monitoredTarget: 'Surveillé · objectif {{price}} €',
         addAlert: 'Ajouter une alerte de prix',
         targetPrice: 'Prix cible',
       },
 
       history: {
         title: 'Mes analyses',
+        empty:
+          'Aucune analyse pour le moment. Retournez à l’accueil pour commencer.',
       },
 
       chat: {
         title: 'Demander à TRUTH',
-        placeholder:
-          'Posez une question sur ce produit…',
+        placeholder: 'Écrivez une question…',
+        suggestionWhy: 'Pourquoi dites-vous cela ?',
+        suggestionAlternative: 'Quelle est la meilleure alternative ?',
+        suggestionWait: 'Vaut-il mieux attendre encore ?',
+        welcome:
+          'Posez-moi une question sur ce produit : prix, alternatives ou moment idéal pour acheter.',
+        error: 'Je n’ai pas pu répondre : {{error}}',
       },
 
       forMe: {
@@ -677,6 +899,15 @@ const resources = {
         logout: 'Déconnexion',
         settings: 'Paramètres',
         language: 'Langue',
+        active: 'ACTIF',
+        price: '5,99 €/mois',
+        description:
+          'Analyses illimitées, historique complet, alertes de prix, IA personnalisée et analyse avancée des avis.',
+        activeMessage:
+          '✓ TRUTH PLUS est actif sur votre compte.',
+        upgrade: 'Passer à PLUS',
+        purchaseTitle: 'TRUTH PLUS',
+        purchaseMessage: 'TRUTH PLUS activé !',
       },
 
       privacy: {
@@ -695,6 +926,13 @@ const resources = {
         close: 'Fermer',
         analysisFailed: 'Échec de l’analyse',
         tryAgain: 'Réessayer',
+      },
+
+      navigation: {
+        home: 'Accueil',
+        wishlist: 'Enregistrés',
+        history: 'Historique',
+        account: 'Compte',
       },
     },
   },
@@ -745,12 +983,37 @@ const resources = {
           'TRUTH hilft dir zu verstehen, ob sich ein Preis wirklich lohnt.',
       },
 
+      analyzing: {
+        message1: 'Ich analysiere das Produkt…',
+        message2: 'Ich suche den aktuellen Preis im Web…',
+        message3: 'Ich vergleiche die Preise verschiedener Händler…',
+        message4: 'Ich lese die Bewertungen…',
+        message5: 'Ich prüfe auf mögliche Auffälligkeiten…',
+      },
+
       result: {
         truthScore: 'Truth Score',
         currentPrice: 'Aktueller Preis',
         fairPrice: 'Fairer Preis',
         potentialSaving: 'Mögliche Ersparnis',
         explanation: 'Erklärung',
+        upTo: 'bis zu',
+        why: 'Warum?',
+        priceTrend: 'Preisentwicklung',
+        noPriceHistory:
+          'Für dieses Produkt sind keine historischen Daten verfügbar.',
+        alternatives: 'Das könntest du auch in Betracht ziehen…',
+        userReviews: 'Was Nutzer sagen',
+        truthCheck: 'Stimmt hier etwas nicht?',
+        bestOffers: 'Beste Angebote',
+        shipping: 'Versand:',
+        go: 'Öffnen',
+        priceAlert: 'Preisalarm',
+        alertMeAt: 'Bei {{price}} € benachrichtigen',
+        alertDescription:
+          'Wir benachrichtigen dich, wenn der Preis diesen Wert erreicht.',
+        activate: 'Aktivieren',
+        askTruth: 'TRUTH fragen',
       },
 
       verdict: {
@@ -778,18 +1041,28 @@ const resources = {
 
       wishlist: {
         title: 'Meine Produkte',
+        empty: 'Noch keine Produkte gespeichert.',
+        monitored: 'Überwacht',
+        monitoredTarget: 'Überwacht · Zielpreis {{price}} €',
         addAlert: 'Preisalarm hinzufügen',
         targetPrice: 'Zielpreis',
       },
 
       history: {
         title: 'Meine Analysen',
+        empty:
+          'Noch keine Analysen. Gehe zurück zur Startseite, um zu beginnen.',
       },
 
       chat: {
         title: 'TRUTH fragen',
-        placeholder:
-          'Stelle eine Frage zu diesem Produkt…',
+        placeholder: 'Frage schreiben…',
+        suggestionWhy: 'Warum sagst du das?',
+        suggestionAlternative: 'Was ist die beste Alternative?',
+        suggestionWait: 'Soll ich noch etwas warten?',
+        welcome:
+          'Frag mich alles zu diesem Produkt: Preis, Alternativen oder Kaufzeitpunkt.',
+        error: 'Ich konnte nicht antworten: {{error}}',
       },
 
       forMe: {
@@ -815,6 +1088,15 @@ const resources = {
         logout: 'Abmelden',
         settings: 'Einstellungen',
         language: 'Sprache',
+        active: 'AKTIV',
+        price: '5,99 €/Monat',
+        description:
+          'Unbegrenzte Analysen, vollständiger Verlauf, Preisalarme, personalisierte KI und erweiterte Bewertungsanalyse.',
+        activeMessage:
+          '✓ TRUTH PLUS ist in deinem Konto aktiv.',
+        upgrade: 'Auf PLUS upgraden',
+        purchaseTitle: 'TRUTH PLUS',
+        purchaseMessage: 'TRUTH PLUS aktiviert!',
       },
 
       privacy: {
@@ -833,6 +1115,13 @@ const resources = {
         close: 'Schließen',
         analysisFailed: 'Analyse fehlgeschlagen',
         tryAgain: 'Erneut versuchen',
+      },
+
+      navigation: {
+        home: 'Startseite',
+        wishlist: 'Gespeichert',
+        history: 'Verlauf',
+        account: 'Konto',
       },
     },
   },
@@ -883,12 +1172,37 @@ const resources = {
           'O TRUTH ajuda você a entender se um preço realmente vale a pena.',
       },
 
+      analyzing: {
+        message1: 'Estou analisando o produto…',
+        message2: 'Procurando o preço atual na web…',
+        message3: 'Comparando preços entre as lojas…',
+        message4: 'Lendo as avaliações…',
+        message5: 'Verificando possíveis anomalias…',
+      },
+
       result: {
         truthScore: 'Truth Score',
         currentPrice: 'Preço atual',
         fairPrice: 'Preço justo',
         potentialSaving: 'Economia potencial',
         explanation: 'Explicação',
+        upTo: 'até',
+        why: 'Por quê?',
+        priceTrend: 'Evolução do preço',
+        noPriceHistory:
+          'Não há dados históricos disponíveis para este produto.',
+        alternatives: 'Você também pode considerar…',
+        userReviews: 'O que os usuários dizem',
+        truthCheck: 'Há algo que não está certo?',
+        bestOffers: 'Melhores ofertas',
+        shipping: 'Frete:',
+        go: 'Ver',
+        priceAlert: 'Alerta de preço',
+        alertMeAt: 'Avise-me em €{{price}}',
+        alertDescription:
+          'Avisaremos quando o preço atingir este valor.',
+        activate: 'Ativar',
+        askTruth: 'Perguntar ao TRUTH',
       },
 
       verdict: {
@@ -916,18 +1230,28 @@ const resources = {
 
       wishlist: {
         title: 'Meus produtos',
+        empty: 'Nenhum produto salvo ainda.',
+        monitored: 'Monitorado',
+        monitoredTarget: 'Monitorado · alvo €{{price}}',
         addAlert: 'Adicionar alerta de preço',
         targetPrice: 'Preço-alvo',
       },
 
       history: {
         title: 'Minhas análises',
+        empty:
+          'Ainda não há análises. Volte para a Home para começar.',
       },
 
       chat: {
         title: 'Perguntar ao TRUTH',
-        placeholder:
-          'Faça uma pergunta sobre este produto…',
+        placeholder: 'Escreva uma pergunta…',
+        suggestionWhy: 'Por que você diz isso?',
+        suggestionAlternative: 'Qual é a melhor alternativa?',
+        suggestionWait: 'Vale a pena esperar mais um pouco?',
+        welcome:
+          'Pergunte qualquer coisa sobre este produto: preço, alternativas ou melhor momento para comprar.',
+        error: 'Não consegui responder: {{error}}',
       },
 
       forMe: {
@@ -953,6 +1277,15 @@ const resources = {
         logout: 'Sair',
         settings: 'Configurações',
         language: 'Idioma',
+        active: 'ATIVO',
+        price: 'R$ 5,99/mês',
+        description:
+          'Análises ilimitadas, histórico completo, alertas de preço, IA personalizada e análise avançada de avaliações.',
+        activeMessage:
+          '✓ TRUTH PLUS está ativo na sua conta.',
+        upgrade: 'Mudar para PLUS',
+        purchaseTitle: 'TRUTH PLUS',
+        purchaseMessage: 'TRUTH PLUS ativado!',
       },
 
       privacy: {
@@ -972,6 +1305,13 @@ const resources = {
         analysisFailed: 'Falha na análise',
         tryAgain: 'Tentar novamente',
       },
+
+      navigation: {
+        home: 'Início',
+        wishlist: 'Salvos',
+        history: 'Histórico',
+        account: 'Conta',
+      },
     },
   },
 };
@@ -985,12 +1325,9 @@ const supportedLanguages = Object.keys(resources);
  * Normalizza il codice lingua.
  *
  * Esempi:
- *   it      → it
- *   it-IT   → it
- *   en-US   → en
- *   en-GB   → en
- *   pt-BR   → pt
- *   fr-FR   → fr
+ * it-IT → it
+ * en-US → en
+ * pt-BR → pt
  */
 const normalizeLanguageCode = (languageCode) => {
   if (!languageCode || typeof languageCode !== 'string') {
@@ -1005,10 +1342,7 @@ const normalizeLanguageCode = (languageCode) => {
 };
 
 /**
- * Rileva la lingua migliore disponibile sul dispositivo.
- *
- * react-native-localize può restituire più lingue preferite.
- * Viene scelta la prima lingua supportata.
+ * Rileva la lingua preferita del dispositivo.
  */
 const deviceLanguages = RNLocalize.getLocales()
   .map((locale) => normalizeLanguageCode(locale?.languageCode))
