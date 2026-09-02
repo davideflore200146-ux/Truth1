@@ -10,26 +10,28 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Feather } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { COLORS } from '../theme';
 import { Card } from '../components/ui';
 
-const OPTIONS = [
-  { icon: 'camera', label: 'Scansiona', sub: 'Usa la fotocamera' },
-  { icon: 'image', label: 'Screenshot', sub: "Carica un'immagine" },
-  { icon: 'link', label: 'Link', sub: 'Incolla un URL' },
-  { icon: 'search', label: 'Cerca', sub: 'Scrivi il nome' },
-];
-
 export default function HomeScreen({ onAnalyze }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [showCamera, setShowCamera] = useState(false);
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
 
+  const OPTIONS = [
+    { key: 'scan', icon: 'camera', label: t('home.scan'), sub: t('home.scanSub') },
+    { key: 'screenshot', icon: 'image', label: t('home.screenshot'), sub: t('home.screenshotSub') },
+    { key: 'link', icon: 'link', label: t('home.link'), sub: t('home.linkSub') },
+    { key: 'search', icon: 'search', label: t('home.search'), sub: t('home.searchSub') },
+  ];
+
   const submit = (value = query) => {
     if (!value.trim()) {
       Alert.alert(
-        'Cosa vuoi verificare?',
-        'Scrivi il nome di un prodotto o incolla un link qui sotto, poi premi cerca.'
+        t('home.emptyTitle'),
+        t('home.emptyMessage')
       );
       return;
     }
@@ -39,12 +41,12 @@ export default function HomeScreen({ onAnalyze }) {
 
   const handleLink = () => {
     Alert.prompt(
-      'Inserisci il link',
-      'Incolla qui il link del prodotto che vuoi verificare.',
+      t('home.linkPromptTitle'),
+      t('home.linkPromptMessage'),
       [
-        { text: 'Annulla', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Analizza',
+          text: t('home.linkAnalyze'),
           onPress: (text) => {
             if (text && text.trim()) {
               setQuery(text.trim());
@@ -64,8 +66,8 @@ export default function HomeScreen({ onAnalyze }) {
 
     if (!permission.granted) {
       Alert.alert(
-        'Permesso necessario',
-        'Per caricare uno screenshot devi consentire a TRUTH di accedere alle tue foto.'
+        t('home.photoPermissionTitle'),
+        t('home.photoPermissionMessage')
       );
       return;
     }
@@ -80,8 +82,8 @@ export default function HomeScreen({ onAnalyze }) {
       const imageUri = result.assets[0].uri;
 
       Alert.alert(
-        'Screenshot selezionato',
-        'Lo screenshot è stato caricato. L’analisi delle immagini verrà collegata al motore TRUTH.'
+        t('home.screenshotSelectedTitle'),
+        t('home.screenshotSelectedMessage')
       );
 
       console.log('[TRUTH] Screenshot:', imageUri);
@@ -94,8 +96,8 @@ export default function HomeScreen({ onAnalyze }) {
 
       if (!permission.granted) {
         Alert.alert(
-          'Fotocamera necessaria',
-          'Per usare Scansiona devi consentire a TRUTH di usare la fotocamera.'
+          t('home.cameraPermissionTitle'),
+          t('home.cameraPermissionMessage')
         );
         return;
       }
@@ -105,22 +107,22 @@ export default function HomeScreen({ onAnalyze }) {
   };
 
   const handleOptionPress = (option) => {
-    if (option.label === 'Scansiona') {
+    if (option.key === 'scan') {
       handleScan();
       return;
     }
 
-    if (option.label === 'Screenshot') {
+    if (option.key === 'screenshot') {
       handleScreenshot();
       return;
     }
 
-    if (option.label === 'Link') {
+    if (option.key === 'link') {
       handleLink();
       return;
     }
 
-    if (option.label === 'Cerca') {
+    if (option.key === 'search') {
       submit();
     }
   };
@@ -146,7 +148,7 @@ export default function HomeScreen({ onAnalyze }) {
 
         <View style={styles.cameraOverlay}>
           <Text style={styles.cameraTitle}>
-            Inquadra il QR code del prodotto
+            {t('home.cameraTitle')}
           </Text>
 
           <View style={styles.scanBox} />
@@ -155,7 +157,7 @@ export default function HomeScreen({ onAnalyze }) {
             style={styles.closeCamera}
             onPress={() => setShowCamera(false)}
           >
-            <Text style={styles.closeCameraText}>Chiudi</Text>
+            <Text style={styles.closeCameraText}>{t('common.close')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -165,16 +167,16 @@ export default function HomeScreen({ onAnalyze }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.logo}>TRUTH</Text>
-        <Text style={styles.tagline}>Know before you buy.</Text>
+        <Text style={styles.logo}>{t('app.name')}</Text>
+        <Text style={styles.tagline}>{t('app.tagline')}</Text>
       </View>
 
-      <Text style={styles.question}>Cosa vuoi verificare?</Text>
+      <Text style={styles.question}>{t('home.title')}</Text>
 
       <View style={styles.grid}>
         {OPTIONS.map((o) => (
           <Card
-            key={o.label}
+            key={o.key}
             onPress={() => handleOptionPress(o)}
             style={styles.optionCard}
           >
@@ -197,7 +199,7 @@ export default function HomeScreen({ onAnalyze }) {
           value={query}
           onChangeText={setQuery}
           onSubmitEditing={() => submit()}
-          placeholder="Es. Sony WH-1000XM6, o incolla un link…"
+          placeholder={t('home.searchPlaceholder')}
           placeholderTextColor={COLORS.textMuted}
           style={styles.searchInput}
           returnKeyType="search"
@@ -216,7 +218,7 @@ export default function HomeScreen({ onAnalyze }) {
       </View>
 
       <Text style={styles.footerNote}>
-        L'analisi usa ricerca web reale: può richiedere qualche secondo.
+        {t('home.footerNote')}
       </Text>
     </View>
   );
