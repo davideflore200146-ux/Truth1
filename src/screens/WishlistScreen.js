@@ -1,4 +1,3 @@
-```js
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -146,4 +145,3 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 });
-```
