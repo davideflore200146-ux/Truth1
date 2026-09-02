@@ -25,7 +25,7 @@ return (
 <View style={{ flex: 1 }}>
 <TopBar title={t('history.title')} />
 
-```
+
   <View style={{ paddingHorizontal: 18, paddingTop: 6 }}>
     {loading && (
       <ActivityIndicator
