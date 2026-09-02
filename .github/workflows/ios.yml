@@ -1,0 +1,53 @@
+name: Build TRUTH iOS
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    name: Build TRUTH
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm install
+      - name: Generate native iOS project
+        run: npx expo prebuild --platform ios --clean
+      - name: Install CocoaPods
+        working-directory: ios
+        run: pod install --repo-update
+      - name: Build Release archive
+        run: |
+          xcodebuild \
+            -workspace ios/TRUTH.xcworkspace \
+            -scheme TRUTH \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath ios/build/TRUTH.xcarchive \
+            archive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
+      - name: Create IPA
+        run: |
+          rm -rf ios/build/ipa
+          mkdir -p ios/build/ipa/Payload
+          cp -R \
+            ios/build/TRUTH.xcarchive/Products/Applications/TRUTH.app \
+            ios/build/ipa/Payload/TRUTH.app
+          cd ios/build/ipa
+          zip -r ../TRUTH.ipa Payload
+      - name: Verify IPA
+        run: |
+          echo "IPA created:"
+          ls -lh ios/build/TRUTH.ipa
+          echo "IPA structure:"
+          unzip -l ios/build/TRUTH.ipa | head -40
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: TRUTH-IPA-RELEASE
+          path: ios/build/TRUTH.ipa
