@@ -4,30 +4,83 @@ import { useTranslation } from 'react-i18next';
 
 import { COLORS } from '../theme';
 import { Card, TopBar } from '../components/ui';
+import i18n from '../i18n';
+
+const LANGUAGES = [
+{ code: 'it', label: '🇮🇹 Italiano' },
+{ code: 'en', label: '🇬🇧 English' },
+{ code: 'sc', label: '🏝️ Sardu (LSC)' },
+{ code: 'es', label: '🇪🇸 Español' },
+{ code: 'fr', label: '🇫🇷 Français' },
+{ code: 'de', label: '🇩🇪 Deutsch' },
+{ code: 'pt', label: '🇵🇹 Português' },
+];
 
 export default function AccountScreen() {
 const { t } = useTranslation();
 
 const [plusActive, setPlusActive] = useState(false);
+const [selectedLanguage, setSelectedLanguage] = useState(i18n.language || 'it');
 
 const handlePurchase = () => {
 setPlusActive(true);
 
-
+```
 Alert.alert(
   t('premium.title'),
   t('account.purchaseMessage')
 );
+```
 
+};
 
+const changeLanguage = (language) => {
+i18n.changeLanguage(language);
+setSelectedLanguage(language);
 };
 
 return (
 <View style={{ flex: 1 }}>
 <TopBar title={t('account.title')} />
 
-
+```
   <View style={{ paddingHorizontal: 18, paddingTop: 6 }}>
+    <Card style={styles.languageCard}>
+      <Text style={styles.sectionTitle}>
+        {t('account.language')}
+      </Text>
+
+      <Text style={styles.sectionDescription}>
+        {t('account.languageDescription')}
+      </Text>
+
+      <View style={styles.languageList}>
+        {LANGUAGES.map((language) => (
+          <TouchableOpacity
+            key={language.code}
+            style={[
+              styles.languageButton,
+              selectedLanguage === language.code && styles.languageButtonActive,
+            ]}
+            onPress={() => changeLanguage(language.code)}
+          >
+            <Text
+              style={[
+                styles.languageText,
+                selectedLanguage === language.code && styles.languageTextActive,
+              ]}
+            >
+              {language.label}
+            </Text>
+
+            {selectedLanguage === language.code && (
+              <Text style={styles.checkmark}>✓</Text>
+            )}
+          </TouchableOpacity>
+        ))}
+      </View>
+    </Card>
+
     <Card style={styles.plusCard}>
       <View style={styles.plusHeader}>
         <Text style={styles.plusTitle}>
@@ -40,7 +93,7 @@ return (
           </Text>
         ) : (
           <Text style={styles.plusPrice}>
-            t('premium.monthly')
+            {t('premium.monthly')}
           </Text>
         )}
       </View>
@@ -52,7 +105,7 @@ return (
       {plusActive ? (
         <View style={styles.activeBox}>
           <Text style={styles.activeBoxText}>
-            ✓ {t('account.activeMessage')}
+            {t('account.activeMessage')}
           </Text>
         </View>
       ) : (
@@ -68,12 +121,64 @@ return (
     </Card>
   </View>
 </View>
-
+```
 
 );
 }
 
 const styles = StyleSheet.create({
+languageCard: {
+marginBottom: 12,
+},
+
+sectionTitle: {
+fontWeight: '700',
+fontSize: 15,
+color: COLORS.textPrimary,
+},
+
+sectionDescription: {
+fontSize: 12,
+color: COLORS.textSecondary,
+marginTop: 5,
+marginBottom: 10,
+},
+
+languageList: {
+gap: 7,
+},
+
+languageButton: {
+minHeight: 42,
+borderRadius: 10,
+paddingHorizontal: 12,
+flexDirection: 'row',
+alignItems: 'center',
+justifyContent: 'space-between',
+borderWidth: 1,
+borderColor: COLORS.border,
+},
+
+languageButtonActive: {
+borderColor: COLORS.brand,
+},
+
+languageText: {
+fontSize: 13,
+color: COLORS.textPrimary,
+},
+
+languageTextActive: {
+color: COLORS.brand,
+fontWeight: '700',
+},
+
+checkmark: {
+color: COLORS.brand,
+fontSize: 16,
+fontWeight: '700',
+},
+
 plusCard: {
 borderColor: COLORS.brand,
 },
