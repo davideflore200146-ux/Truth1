@@ -13,12 +13,12 @@ const [plusActive, setPlusActive] = useState(false);
 const handlePurchase = () => {
 setPlusActive(true);
 
-```
+
 Alert.alert(
   t('premium.title'),
   t('account.purchaseMessage')
 );
-```
+
 
 };
 
@@ -26,7 +26,7 @@ return (
 <View style={{ flex: 1 }}>
 <TopBar title={t('account.title')} />
 
-```
+
   <View style={{ paddingHorizontal: 18, paddingTop: 6 }}>
     <Card style={styles.plusCard}>
       <View style={styles.plusHeader}>
@@ -68,7 +68,7 @@ return (
     </Card>
   </View>
 </View>
-```
+
 
 );
 }
