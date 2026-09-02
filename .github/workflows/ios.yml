@@ -1,60 +1,11 @@
-name: Build TRUTH iOS
+name: Test TRUTH
 
 on:
 workflow_dispatch:
 
 jobs:
-build:
+test:
 runs-on: macos-latest
-
-```
 steps:
-  - uses: actions/checkout@v4
+- run: echo "TRUTH WORKFLOW OK"
 
-  - uses: actions/setup-node@v4
-    with:
-      node-version: 20
-      cache: npm
-
-  - run: npm install
-
-  - run: npx expo prebuild --platform ios --clean
-
-  - run: pod install --repo-update
-    working-directory: ios
-
-  - run: |
-      set -o pipefail
-      xcodebuild \
-        -workspace ios/TRUTH.xcworkspace \
-        -scheme TRUTH \
-        -configuration Release \
-        -sdk iphoneos \
-        -archivePath ios/build/TRUTH.xcarchive \
-        archive \
-        CODE_SIGNING_ALLOWED=NO \
-        CODE_SIGNING_REQUIRED=NO \
-        2>&1 | tee ios/build-xcode.log
-
-  - if: failure()
-    run: |
-      echo "===== XCODE ERRORS ====="
-      grep -i -E "error:|fatal error:|command.*failed|phase.*failed" ios/build-xcode.log || true
-      echo "===== END ERRORS ====="
-
-  - run: |
-      rm -rf ios/build/ipa
-      mkdir -p ios/build/ipa/Payload
-      cp -R ios/build/TRUTH.xcarchive/Products/Applications/TRUTH.app ios/build/ipa/Payload/TRUTH.app
-      cd ios/build/ipa
-      zip -r ../TRUTH.ipa Payload
-
-  - run: |
-      ls -lh ios/build/TRUTH.ipa
-      unzip -l ios/build/TRUTH.ipa | head -40
-
-  - uses: actions/upload-artifact@v4
-    with:
-      name: TRUTH-IPA-RELEASE
-      path: ios/build/TRUTH.ipa
-```
