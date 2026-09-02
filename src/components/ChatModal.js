@@ -21,7 +21,7 @@ const { t } = useTranslation();
 const [messages, setMessages] = useState([
 {
 from: 'bot',
-text: t('chat.initialMessage'),
+text: t('chat.welcome'),
 },
 ]);
 
@@ -29,9 +29,9 @@ const [input, setInput] = useState('');
 const [sending, setSending] = useState(false);
 
 const suggestions = [
-t('chat.suggestion1'),
-t('chat.suggestion2'),
-t('chat.suggestion3'),
+t('chat.suggestionWhy'),
+t('chat.suggestionAlternative'),
+t('chat.suggestionWait'),
 ];
 
 const send = async (text) => {
@@ -55,7 +55,7 @@ try {
     {
       from: 'bot',
       text: t('chat.error', {
-        message: err?.message || t('common.tryAgain'),
+        error: err?.message || t('common.tryAgain'),
       }),
     },
   ]);
