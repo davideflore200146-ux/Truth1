@@ -19,7 +19,7 @@ const major = i % 6 === 0;
 const rOuter = r + size * 0.075;
 const rInner = major ? r + size * 0.03 : r + size * 0.048;
 
-```
+
 return {
   x1: cx + Math.cos(angle) * rOuter,
   y1: cy + Math.sin(angle) * rOuter,
@@ -27,7 +27,7 @@ return {
   y2: cy + Math.sin(angle) * rInner,
   major,
 };
-```
+
 
 });
 
@@ -42,7 +42,7 @@ strokeWidth={size * 0.048}
 fill="none"
 />
 
-```
+
     <G rotation="-90" origin={`${cx}, ${cy}`}>
       <Circle
         cx={cx}
@@ -79,7 +79,7 @@ fill="none"
     </Text>
   </View>
 </View>
-```
+
 
 );
 }
