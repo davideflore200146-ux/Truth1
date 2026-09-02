@@ -1,4 +1,4 @@
-```js
+
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -129,4 +129,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-```
