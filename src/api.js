@@ -2,7 +2,7 @@
 // sulla tua rete Wi-Fi (NON "localhost": sul telefono punterebbe al telefono stesso).
 // Per trovarlo: su Mac/Linux "ifconfig | grep inet", su Windows "ipconfig".
 // Esempio: 'http://192.168.1.23:3001'
-export const API_BASE_URL = 'http://192.168.0.171:3001';
+export const API_BASE_URL = 'https://truth1.onrender.com';
 
 async function request(path, options = {}) {
   let res;
