@@ -37,7 +37,7 @@ t('chat.suggestionWait'),
 const send = async (text) => {
 if (!text.trim() || sending) return;
 
-```
+
 setMessages((m) => [...m, { from: 'user', text }]);
 setInput('');
 setSending(true);
@@ -62,7 +62,7 @@ try {
 } finally {
   setSending(false);
 }
-```
+
 
 };
 
@@ -83,7 +83,7 @@ gap: 6,
              color={COLORS.brand}
            />
 
-```
+
           <Text style={styles.headerTitle}>
             {t('chat.title')}
           </Text>
@@ -182,7 +182,7 @@ gap: 6,
     </View>
   </View>
 </Modal>
-```
+
 
 );
 }
