@@ -25,12 +25,12 @@ const [selectedLanguage, setSelectedLanguage] = useState(i18n.language || 'it');
 const handlePurchase = () => {
 setPlusActive(true);
 
-```
+
 Alert.alert(
   t('premium.title'),
   t('account.purchaseMessage')
 );
-```
+
 
 };
 
@@ -43,7 +43,7 @@ return (
 <View style={{ flex: 1 }}>
 <TopBar title={t('account.title')} />
 
-```
+
   <View style={{ paddingHorizontal: 18, paddingTop: 6 }}>
     <Card style={styles.languageCard}>
       <Text style={styles.sectionTitle}>
@@ -121,7 +121,7 @@ return (
     </Card>
   </View>
 </View>
-```
+
 
 );
 }
