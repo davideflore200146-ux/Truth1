@@ -11,11 +11,17 @@
  *   const { t } = useTranslation();
  *   <Text>{t('verdict.buy')}</Text>
  *
- * Lingue incluse: it, en, es, fr, de, pt, sc (Sardo - Limba Sarda Comuna)
- * Aggiungi nuove lingue copiando un blocco e traducendo i valori.
+ * Lingue incluse:
+ *   it — Italiano
+ *   en — English
+ *   es — Español
+ *   fr — Français
+ *   de — Deutsch
+ *   pt — Português
+ *   sc — Sardu (Limba Sarda Comuna)
  *
- * NOTA: le traduzioni in sardo sono una prima bozza in Limba Sarda Comuna (LSC),
- * consigliata una revisione da parte di un madrelingua prima della pubblicazione.
+ * La lingua del dispositivo viene rilevata automaticamente.
+ * Se la lingua non è supportata, viene utilizzato l'inglese.
  */
 
 import i18n from 'i18next';
@@ -42,19 +48,24 @@ const resources = {
         search: 'Cerca',
         searchSub: 'Cerca un prodotto',
         emptyTitle: 'Inserisci qualcosa',
-        emptyMessage: 'Inserisci un prodotto, un link o una ricerca da analizzare.',
+        emptyMessage:
+          'Inserisci un prodotto, un link o una ricerca da analizzare.',
         linkPromptTitle: 'Analizza un link',
-        linkPromptMessage: 'Inserisci il link del prodotto che vuoi analizzare.',
+        linkPromptMessage:
+          'Inserisci il link del prodotto che vuoi analizzare.',
         linkAnalyze: 'Analizza',
         photoPermissionTitle: 'Permesso foto necessario',
-        photoPermissionMessage: 'Per scegliere uno screenshot è necessario consentire a TRUTH di accedere alle tue foto.',
+        photoPermissionMessage:
+          'Per scegliere uno screenshot è necessario consentire a TRUTH di accedere alle tue foto.',
         screenshotSelectedTitle: 'Screenshot selezionato',
         screenshotSelectedMessage: 'Lo screenshot è stato selezionato.',
         cameraPermissionTitle: 'Permesso fotocamera necessario',
-        cameraPermissionMessage: 'Per scansionare un prodotto è necessario consentire a TRUTH di usare la fotocamera.',
+        cameraPermissionMessage:
+          'Per scansionare un prodotto è necessario consentire a TRUTH di usare la fotocamera.',
         cameraTitle: 'Inquadra il codice QR del prodotto',
         searchPlaceholder: 'Cerca un prodotto...',
-        footerNote: 'TRUTH ti aiuta a capire se un prezzo è davvero conveniente.',
+        footerNote:
+          'TRUTH ti aiuta a capire se un prezzo è davvero conveniente.',
       },
 
       result: {
@@ -130,7 +141,8 @@ const resources = {
 
       privacy: {
         title: 'Privacy',
-        description: 'Qui puoi vedere cosa raccogliamo, cosa salviamo e cosa eliminiamo.',
+        description:
+          'Qui puoi vedere cosa raccogliamo, cosa salviamo e cosa eliminiamo.',
       },
 
       common: {
@@ -166,17 +178,21 @@ const resources = {
         emptyTitle: 'Enter something',
         emptyMessage: 'Enter a product, link, or search to analyze.',
         linkPromptTitle: 'Analyze a link',
-        linkPromptMessage: 'Enter the product link you want to analyze.',
+        linkPromptMessage:
+          'Enter the product link you want to analyze.',
         linkAnalyze: 'Analyze',
         photoPermissionTitle: 'Photo permission required',
-        photoPermissionMessage: 'TRUTH needs access to your photos to select a screenshot.',
+        photoPermissionMessage:
+          'TRUTH needs access to your photos to select a screenshot.',
         screenshotSelectedTitle: 'Screenshot selected',
         screenshotSelectedMessage: 'The screenshot has been selected.',
         cameraPermissionTitle: 'Camera permission required',
-        cameraPermissionMessage: 'TRUTH needs camera access to scan a product.',
+        cameraPermissionMessage:
+          'TRUTH needs camera access to scan a product.',
         cameraTitle: 'Point at the product QR code',
         searchPlaceholder: 'Search for a product...',
-        footerNote: 'TRUTH helps you understand whether a price is really worth it.',
+        footerNote:
+          'TRUTH helps you understand whether a price is really worth it.',
       },
 
       result: {
@@ -252,7 +268,8 @@ const resources = {
 
       privacy: {
         title: 'Privacy',
-        description: 'See what we collect, what we store, and what we delete.',
+        description:
+          'See what we collect, what we store, and what we delete.',
       },
 
       common: {
@@ -272,7 +289,8 @@ const resources = {
       app: {
         name: 'TRUTH',
         tagline: 'Ischi prima de comporare.',
-        subtagline: 'No agatare isceti su prètziu. Agata sa beridade.',
+        subtagline:
+          'No agatare isceti su prètziu. Agata sa beridade.',
       },
 
       home: {
@@ -286,19 +304,28 @@ const resources = {
         search: 'Chirca',
         searchSub: 'Chirca unu prodùtu',
         emptyTitle: 'Inserta carchi cosa',
-        emptyMessage: 'Inserta unu prodùtu, unu ligàmene o una chirca de analisare.',
+        emptyMessage:
+          'Inserta unu prodùtu, unu ligàmene o una chirca de analisare.',
         linkPromptTitle: 'Analiza unu ligàmene',
-        linkPromptMessage: 'Inserta su ligàmene de su prodùtu chi boles analisare.',
+        linkPromptMessage:
+          'Inserta su ligàmene de su prodùtu chi boles analisare.',
         linkAnalyze: 'Analiza',
-        photoPermissionTitle: 'Permissu de fotografias netzessàriu',
-        photoPermissionMessage: 'TRUTH tenet bisòngiu de atzessu a is fotografias tuas pro seletzionare unu iscreenshot.',
+        photoPermissionTitle:
+          'Permissu de fotografias netzessàriu',
+        photoPermissionMessage:
+          'TRUTH tenet bisòngiu de atzessu a is fotografias tuas pro seletzionare unu iscreenshot.',
         screenshotSelectedTitle: 'Iscreenshot seletzionadu',
-        screenshotSelectedMessage: 'S''iscreenshot est istadu seletzionadu.',
-        cameraPermissionTitle: 'Permissu de fotocàmera netzessàriu',
-        cameraPermissionMessage: 'TRUTH tenet bisòngiu de atzessu a sa fotocàmera pro iscansionare unu prodùtu.',
-        cameraTitle: 'Inquadra su còdighe QR de su prodùtu',
+        screenshotSelectedMessage:
+          "S'iscreenshot est istadu seletzionadu.",
+        cameraPermissionTitle:
+          'Permissu de fotocàmera netzessàriu',
+        cameraPermissionMessage:
+          'TRUTH tenet bisòngiu de atzessu a sa fotocàmera pro iscansionare unu prodùtu.',
+        cameraTitle:
+          'Inquadra su còdighe QR de su prodùtu',
         searchPlaceholder: 'Chirca unu prodùtu...',
-        footerNote: 'TRUTH t''agiudat a cumprèndere si unu prètziu est beru cunveniente.',
+        footerNote:
+          "TRUTH t'agiudat a cumprèndere si unu prètziu est beru cunveniente.",
       },
 
       result: {
@@ -344,7 +371,8 @@ const resources = {
 
       chat: {
         title: 'Preguntai a TRUTH',
-        placeholder: 'Fai una pregunta subra de custu prodùtu…',
+        placeholder:
+          'Fai una pregunta subra de custu prodùtu…',
       },
 
       forMe: {
@@ -374,7 +402,8 @@ const resources = {
 
       privacy: {
         title: 'Privatesa',
-        description: 'Inoghe podes bìdere ite regollimus, ite sarvamus e ite cantzellamus.',
+        description:
+          'Inoghe podes bìdere ite regollimus, ite sarvamus e ite cantzellamus.',
       },
 
       common: {
@@ -394,7 +423,8 @@ const resources = {
       app: {
         name: 'TRUTH',
         tagline: 'Know before you buy.',
-        subtagline: 'No busques solo el precio. Encuentra la verdad.',
+        subtagline:
+          'No busques solo el precio. Encuentra la verdad.',
       },
 
       home: {
@@ -408,19 +438,28 @@ const resources = {
         search: 'Buscar',
         searchSub: 'Buscar un producto',
         emptyTitle: 'Introduce algo',
-        emptyMessage: 'Introduce un producto, enlace o búsqueda para analizar.',
+        emptyMessage:
+          'Introduce un producto, enlace o búsqueda para analizar.',
         linkPromptTitle: 'Analizar un enlace',
-        linkPromptMessage: 'Introduce el enlace del producto que quieres analizar.',
+        linkPromptMessage:
+          'Introduce el enlace del producto que quieres analizar.',
         linkAnalyze: 'Analizar',
-        photoPermissionTitle: 'Permiso de fotos necesario',
-        photoPermissionMessage: 'TRUTH necesita acceso a tus fotos para seleccionar una captura.',
+        photoPermissionTitle:
+          'Permiso de fotos necesario',
+        photoPermissionMessage:
+          'TRUTH necesita acceso a tus fotos para seleccionar una captura.',
         screenshotSelectedTitle: 'Captura seleccionada',
-        screenshotSelectedMessage: 'La captura ha sido seleccionada.',
-        cameraPermissionTitle: 'Permiso de cámara necesario',
-        cameraPermissionMessage: 'TRUTH necesita acceso a la cámara para escanear un producto.',
-        cameraTitle: 'Enfoca el código QR del producto',
+        screenshotSelectedMessage:
+          'La captura ha sido seleccionada.',
+        cameraPermissionTitle:
+          'Permiso de cámara necesario',
+        cameraPermissionMessage:
+          'TRUTH necesita acceso a la cámara para escanear un producto.',
+        cameraTitle:
+          'Enfoca el código QR del producto',
         searchPlaceholder: 'Buscar un producto...',
-        footerNote: 'TRUTH te ayuda a saber si un precio realmente merece la pena.',
+        footerNote:
+          'TRUTH te ayuda a saber si un precio realmente merece la pena.',
       },
 
       result: {
@@ -466,7 +505,8 @@ const resources = {
 
       chat: {
         title: 'Pregunta a TRUTH',
-        placeholder: 'Haz una pregunta sobre este producto…',
+        placeholder:
+          'Haz una pregunta sobre este producto…',
       },
 
       forMe: {
@@ -496,7 +536,8 @@ const resources = {
 
       privacy: {
         title: 'Privacidad',
-        description: 'Aquí puedes ver qué recopilamos, qué guardamos y qué eliminamos.',
+        description:
+          'Aquí puedes ver qué recopilamos, qué guardamos y qué eliminamos.',
       },
 
       common: {
@@ -516,7 +557,8 @@ const resources = {
       app: {
         name: 'TRUTH',
         tagline: 'Know before you buy.',
-        subtagline: 'Ne trouvez pas seulement le prix. Trouvez la vérité.',
+        subtagline:
+          'Ne trouvez pas seulement le prix. Trouvez la vérité.',
       },
 
       home: {
@@ -530,19 +572,30 @@ const resources = {
         search: 'Rechercher',
         searchSub: 'Rechercher un produit',
         emptyTitle: 'Saisissez quelque chose',
-        emptyMessage: 'Saisissez un produit, un lien ou une recherche à analyser.',
+        emptyMessage:
+          'Saisissez un produit, un lien ou une recherche à analyser.',
         linkPromptTitle: 'Analyser un lien',
-        linkPromptMessage: 'Saisissez le lien du produit que vous souhaitez analyser.',
+        linkPromptMessage:
+          'Saisissez le lien du produit que vous souhaitez analyser.',
         linkAnalyze: 'Analyser',
-        photoPermissionTitle: 'Autorisation des photos requise',
-        photoPermissionMessage: 'TRUTH a besoin d’accéder à vos photos pour sélectionner une capture.',
-        screenshotSelectedTitle: 'Capture sélectionnée',
-        screenshotSelectedMessage: 'La capture a été sélectionnée.',
-        cameraPermissionTitle: 'Autorisation de la caméra requise',
-        cameraPermissionMessage: 'TRUTH a besoin d’accéder à la caméra pour scanner un produit.',
-        cameraTitle: 'Cadrez le code QR du produit',
-        searchPlaceholder: 'Rechercher un produit...',
-        footerNote: 'TRUTH vous aide à savoir si un prix en vaut vraiment la peine.',
+        photoPermissionTitle:
+          'Autorisation des photos requise',
+        photoPermissionMessage:
+          'TRUTH a besoin d’accéder à vos photos pour sélectionner une capture.',
+        screenshotSelectedTitle:
+          'Capture sélectionnée',
+        screenshotSelectedMessage:
+          'La capture a été sélectionnée.',
+        cameraPermissionTitle:
+          'Autorisation de la caméra requise',
+        cameraPermissionMessage:
+          'TRUTH a besoin d’accéder à la caméra pour scanner un produit.',
+        cameraTitle:
+          'Cadrez le code QR du produit',
+        searchPlaceholder:
+          'Rechercher un produit...',
+        footerNote:
+          'TRUTH vous aide à savoir si un prix en vaut vraiment la peine.',
       },
 
       result: {
@@ -588,7 +641,8 @@ const resources = {
 
       chat: {
         title: 'Demander à TRUTH',
-        placeholder: 'Posez une question sur ce produit…',
+        placeholder:
+          'Posez une question sur ce produit…',
       },
 
       forMe: {
@@ -618,7 +672,8 @@ const resources = {
 
       privacy: {
         title: 'Confidentialité',
-        description: 'Voyez ici ce que nous collectons, stockons et supprimons.',
+        description:
+          'Voyez ici ce que nous collectons, stockons et supprimons.',
       },
 
       common: {
@@ -638,7 +693,8 @@ const resources = {
       app: {
         name: 'TRUTH',
         tagline: 'Know before you buy.',
-        subtagline: 'Finde nicht nur den Preis. Finde die Wahrheit.',
+        subtagline:
+          'Finde nicht nur den Preis. Finde die Wahrheit.',
       },
 
       home: {
@@ -652,19 +708,30 @@ const resources = {
         search: 'Suchen',
         searchSub: 'Nach einem Produkt suchen',
         emptyTitle: 'Etwas eingeben',
-        emptyMessage: 'Gib ein Produkt, einen Link oder eine Suche zur Analyse ein.',
+        emptyMessage:
+          'Gib ein Produkt, einen Link oder eine Suche zur Analyse ein.',
         linkPromptTitle: 'Link analysieren',
-        linkPromptMessage: 'Gib den Link des Produkts ein, das du analysieren möchtest.',
+        linkPromptMessage:
+          'Gib den Link des Produkts ein, das du analysieren möchtest.',
         linkAnalyze: 'Analysieren',
-        photoPermissionTitle: 'Fotoberechtigung erforderlich',
-        photoPermissionMessage: 'TRUTH benötigt Zugriff auf deine Fotos, um einen Screenshot auszuwählen.',
-        screenshotSelectedTitle: 'Screenshot ausgewählt',
-        screenshotSelectedMessage: 'Der Screenshot wurde ausgewählt.',
-        cameraPermissionTitle: 'Kameraberechtigung erforderlich',
-        cameraPermissionMessage: 'TRUTH benötigt Kamerazugriff, um ein Produkt zu scannen.',
-        cameraTitle: 'QR-Code des Produkts erfassen',
-        searchPlaceholder: 'Nach einem Produkt suchen...',
-        footerNote: 'TRUTH hilft dir zu verstehen, ob sich ein Preis wirklich lohnt.',
+        photoPermissionTitle:
+          'Fotoberechtigung erforderlich',
+        photoPermissionMessage:
+          'TRUTH benötigt Zugriff auf deine Fotos, um einen Screenshot auszuwählen.',
+        screenshotSelectedTitle:
+          'Screenshot ausgewählt',
+        screenshotSelectedMessage:
+          'Der Screenshot wurde ausgewählt.',
+        cameraPermissionTitle:
+          'Kameraberechtigung erforderlich',
+        cameraPermissionMessage:
+          'TRUTH benötigt Kamerazugriff, um ein Produkt zu scannen.',
+        cameraTitle:
+          'QR-Code des Produkts erfassen',
+        searchPlaceholder:
+          'Nach einem Produkt suchen...',
+        footerNote:
+          'TRUTH hilft dir zu verstehen, ob sich ein Preis wirklich lohnt.',
       },
 
       result: {
@@ -710,7 +777,8 @@ const resources = {
 
       chat: {
         title: 'TRUTH fragen',
-        placeholder: 'Stelle eine Frage zu diesem Produkt…',
+        placeholder:
+          'Stelle eine Frage zu diesem Produkt…',
       },
 
       forMe: {
@@ -740,7 +808,8 @@ const resources = {
 
       privacy: {
         title: 'Datenschutz',
-        description: 'Hier siehst du, was wir sammeln, speichern und löschen.',
+        description:
+          'Hier siehst du, was wir sammeln, speichern und löschen.',
       },
 
       common: {
@@ -760,7 +829,8 @@ const resources = {
       app: {
         name: 'TRUTH',
         tagline: 'Know before you buy.',
-        subtagline: 'Não procure só o preço. Encontre a verdade.',
+        subtagline:
+          'Não procure só o preço. Encontre a verdade.',
       },
 
       home: {
@@ -774,19 +844,30 @@ const resources = {
         search: 'Pesquisar',
         searchSub: 'Pesquisar um produto',
         emptyTitle: 'Digite alguma coisa',
-        emptyMessage: 'Digite um produto, link ou pesquisa para analisar.',
+        emptyMessage:
+          'Digite um produto, link ou pesquisa para analisar.',
         linkPromptTitle: 'Analisar um link',
-        linkPromptMessage: 'Digite o link do produto que você quer analisar.',
+        linkPromptMessage:
+          'Digite o link do produto que você quer analisar.',
         linkAnalyze: 'Analisar',
-        photoPermissionTitle: 'Permissão para fotos necessária',
-        photoPermissionMessage: 'O TRUTH precisa de acesso às suas fotos para selecionar uma captura de tela.',
-        screenshotSelectedTitle: 'Captura selecionada',
-        screenshotSelectedMessage: 'A captura de tela foi selecionada.',
-        cameraPermissionTitle: 'Permissão para câmera necessária',
-        cameraPermissionMessage: 'O TRUTH precisa de acesso à câmera para escanear um produto.',
-        cameraTitle: 'Aponte para o código QR do produto',
-        searchPlaceholder: 'Pesquisar um produto...',
-        footerNote: 'O TRUTH ajuda você a entender se um preço realmente vale a pena.',
+        photoPermissionTitle:
+          'Permissão para fotos necessária',
+        photoPermissionMessage:
+          'O TRUTH precisa de acesso às suas fotos para selecionar uma captura de tela.',
+        screenshotSelectedTitle:
+          'Captura selecionada',
+        screenshotSelectedMessage:
+          'A captura de tela foi selecionada.',
+        cameraPermissionTitle:
+          'Permissão para câmera necessária',
+        cameraPermissionMessage:
+          'O TRUTH precisa de acesso à câmera para escanear um produto.',
+        cameraTitle:
+          'Aponte para o código QR do produto',
+        searchPlaceholder:
+          'Pesquisar um produto...',
+        footerNote:
+          'O TRUTH ajuda você a entender se um preço realmente vale a pena.',
       },
 
       result: {
@@ -832,7 +913,8 @@ const resources = {
 
       chat: {
         title: 'Perguntar ao TRUTH',
-        placeholder: 'Faça uma pergunta sobre este produto…',
+        placeholder:
+          'Faça uma pergunta sobre este produto…',
       },
 
       forMe: {
@@ -862,7 +944,8 @@ const resources = {
 
       privacy: {
         title: 'Privacidade',
-        description: 'Veja aqui o que coletamos, o que guardamos e o que excluímos.',
+        description:
+          'Veja aqui o que coletamos, o que guardamos e o que excluímos.',
       },
 
       common: {
@@ -878,21 +961,66 @@ const resources = {
   },
 };
 
-// Rileva la lingua del dispositivo e sceglie la migliore corrispondenza disponibile
-const deviceLanguages = RNLocalize.getLocales().map((l) => l.languageCode);
+/**
+ * Lingue effettivamente supportate da TRUTH.
+ */
 const supportedLanguages = Object.keys(resources);
-const bestLanguage =
-  deviceLanguages.find((lng) => supportedLanguages.includes(lng)) || 'en';
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: bestLanguage,
-    fallbackLng: 'en',
-    interpolation: {
-      escapeValue: false,
-    },
-  });
+/**
+ * Normalizza il codice lingua.
+ *
+ * Esempi:
+ *   it      → it
+ *   it-IT   → it
+ *   en-US   → en
+ *   en-GB   → en
+ *   pt-BR   → pt
+ *   fr-FR   → fr
+ */
+const normalizeLanguageCode = (languageCode) => {
+  if (!languageCode || typeof languageCode !== 'string') {
+    return null;
+  }
+
+  const normalized = languageCode.toLowerCase().split('-')[0];
+
+  return supportedLanguages.includes(normalized)
+    ? normalized
+    : null;
+};
+
+/**
+ * Rileva la lingua migliore disponibile sul dispositivo.
+ *
+ * react-native-localize può restituire più lingue preferite.
+ * Viene scelta la prima lingua supportata.
+ */
+const deviceLanguages = RNLocalize.getLocales()
+  .map((locale) => normalizeLanguageCode(locale?.languageCode))
+  .filter(Boolean);
+
+const bestLanguage = deviceLanguages[0] || 'en';
+
+/**
+ * Inizializzazione i18next.
+ */
+i18n.use(initReactI18next).init({
+  resources,
+  lng: bestLanguage,
+  fallbackLng: 'en',
+
+  compatibilityJSON: 'v4',
+
+  interpolation: {
+    escapeValue: false,
+  },
+
+  react: {
+    useSuspense: false,
+  },
+
+  returnNull: false,
+  returnEmptyString: false,
+});
 
 export default i18n;
