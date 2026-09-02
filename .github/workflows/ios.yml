@@ -7,12 +7,11 @@ jobs:
 build:
 name: Build TRUTH
 runs-on: macos-latest
+steps:
+- name: Checkout
+uses: actions/checkout@v4
 
 ```
-steps:
-  - name: Checkout
-    uses: actions/checkout@v4
-
   - name: Setup Node
     uses: actions/setup-node@v4
     with:
@@ -54,9 +53,7 @@ steps:
     run: |
       rm -rf ios/build/ipa
       mkdir -p ios/build/ipa/Payload
-      cp -R \
-        ios/build/TRUTH.xcarchive/Products/Applications/TRUTH.app \
-        ios/build/ipa/Payload/TRUTH.app
+      cp -R ios/build/TRUTH.xcarchive/Products/Applications/TRUTH.app ios/build/ipa/Payload/TRUTH.app
       cd ios/build/ipa
       zip -r ../TRUTH.ipa Payload
 
