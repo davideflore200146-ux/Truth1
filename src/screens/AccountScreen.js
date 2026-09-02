@@ -1,41 +1,55 @@
+```js
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { useTranslation } from 'react-i18next';
+
 import { COLORS } from '../theme';
 import { Card, TopBar } from '../components/ui';
 
 export default function AccountScreen() {
+  const { t } = useTranslation();
+
   const [plusActive, setPlusActive] = useState(false);
 
   const handlePurchase = () => {
     setPlusActive(true);
-    Alert.alert('TRUTH PLUS', 'TRUTH PLUS attivato!');
+
+    Alert.alert(
+      t('premium.title'),
+      t('premium.activated')
+    );
   };
 
   return (
     <View style={{ flex: 1 }}>
-      <TopBar title="Account" />
+      <TopBar title={t('account.title')} />
 
       <View style={{ paddingHorizontal: 18, paddingTop: 6 }}>
         <Card style={styles.plusCard}>
           <View style={styles.plusHeader}>
-            <Text style={styles.plusTitle}>TRUTH PLUS</Text>
+            <Text style={styles.plusTitle}>
+              TRUTH PLUS
+            </Text>
 
             {plusActive ? (
-              <Text style={styles.activeText}>ATTIVO</Text>
+              <Text style={styles.activeText}>
+                {t('premium.active')}
+              </Text>
             ) : (
-              <Text style={styles.plusPrice}>€5,99/mese</Text>
+              <Text style={styles.plusPrice}>
+                €5,99/{t('premium.month')}
+              </Text>
             )}
           </View>
 
           <Text style={styles.plusDesc}>
-            Analisi illimitate, storico completo, price alert,
-            AI personalizzata e analisi recensioni avanzata.
+            {t('premium.description')}
           </Text>
 
           {plusActive ? (
             <View style={styles.activeBox}>
               <Text style={styles.activeBoxText}>
-                ✓ TRUTH PLUS è attivo sul tuo account.
+                ✓ {t('premium.activeMessage')}
               </Text>
             </View>
           ) : (
@@ -44,7 +58,7 @@ export default function AccountScreen() {
               onPress={handlePurchase}
             >
               <Text style={styles.plusBtnText}>
-                Passa a PLUS
+                {t('premium.upgrade')}
               </Text>
             </TouchableOpacity>
           )}
@@ -115,3 +129,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+```
