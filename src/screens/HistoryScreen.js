@@ -1,4 +1,3 @@
-```js
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Feather } from '@expo/vector-icons';
@@ -144,4 +143,3 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
 });
-```
