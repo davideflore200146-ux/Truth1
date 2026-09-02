@@ -6,10 +6,10 @@ import { useTranslation } from 'react-i18next';
 import { COLORS } from '../theme';
 
 const TABS = [
-{ id: 'home', icon: 'home', labelKey: 'app.home' },
-{ id: 'wishlist', icon: 'heart', labelKey: 'app.saved' },
-{ id: 'history', icon: 'clock', labelKey: 'app.history' },
-{ id: 'account', icon: 'user', labelKey: 'app.account' },
+{ id: 'home', icon: 'home', labelKey: 'navigation.home' },
+{ id: 'wishlist', icon: 'heart', labelKey: 'navigation.wishlist' },
+{ id: 'history', icon: 'clock', labelKey: 'navigation.history' },
+{ id: 'account', icon: 'user', labelKey: 'navigation.account' },
 ];
 
 export default function BottomNav({ tab, setTab }) {
