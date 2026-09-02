@@ -21,6 +21,13 @@ const resources = {
         copied: 'Copiato',
       },
 
+      navigation: {
+        home: 'Home',
+        wishlist: 'Wishlist',
+        history: 'Cronologia',
+        account: 'Account',
+      },
+
       home: {
         title: 'TRUTH',
         subtitle: 'Scopri la verità sui prezzi',
@@ -116,6 +123,13 @@ const resources = {
         search: 'Search',
         share: 'Share',
         copied: 'Copied',
+      },
+
+      navigation: {
+        home: 'Home',
+        wishlist: 'Wishlist',
+        history: 'History',
+        account: 'Account',
       },
 
       home: {
@@ -215,6 +229,13 @@ const resources = {
         copied: 'Copiadu',
       },
 
+      navigation: {
+        home: 'Domo',
+        wishlist: 'Preferidos',
+        history: 'Istòria',
+        account: 'Contu',
+      },
+
       home: {
         title: 'TRUTH',
         subtitle: 'Scobri sa beridadi subra is pretzus',
@@ -310,6 +331,13 @@ const resources = {
         search: 'Buscar',
         share: 'Compartir',
         copied: 'Copiado',
+      },
+
+      navigation: {
+        home: 'Inicio',
+        wishlist: 'Favoritos',
+        history: 'Historial',
+        account: 'Cuenta',
       },
 
       home: {
@@ -409,6 +437,13 @@ const resources = {
         copied: 'Copié',
       },
 
+      navigation: {
+        home: 'Accueil',
+        wishlist: 'Favoris',
+        history: 'Historique',
+        account: 'Compte',
+      },
+
       home: {
         title: 'TRUTH',
         subtitle: 'Découvrez la vérité sur les prix',
@@ -506,6 +541,13 @@ const resources = {
         copied: 'Kopiert',
       },
 
+      navigation: {
+        home: 'Startseite',
+        wishlist: 'Wunschliste',
+        history: 'Verlauf',
+        account: 'Konto',
+      },
+
       home: {
         title: 'TRUTH',
         subtitle: 'Entdecke die Wahrheit über Preise',
@@ -601,6 +643,13 @@ const resources = {
         search: 'Pesquisar',
         share: 'Partilhar',
         copied: 'Copiado',
+      },
+
+      navigation: {
+        home: 'Início',
+        wishlist: 'Favoritos',
+        history: 'Histórico',
+        account: 'Conta',
       },
 
       home: {
