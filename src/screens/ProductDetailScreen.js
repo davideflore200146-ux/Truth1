@@ -1,4 +1,3 @@
-```js
 import React, { useState } from 'react';
 import {
   View,
@@ -800,4 +799,3 @@ const styles = StyleSheet.create({
     fontSize: 12.5,
   },
 });
-```
