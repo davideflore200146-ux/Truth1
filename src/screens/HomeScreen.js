@@ -1,3 +1,4 @@
+```js
 import React, { useState } from 'react';
 import {
   View,
@@ -16,15 +17,37 @@ import { Card } from '../components/ui';
 
 export default function HomeScreen({ onAnalyze }) {
   const { t } = useTranslation();
+
   const [query, setQuery] = useState('');
   const [showCamera, setShowCamera] = useState(false);
-  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [cameraPermission, requestCameraPermission] =
+    useCameraPermissions();
 
   const OPTIONS = [
-    { key: 'scan', icon: 'camera', label: t('home.scan'), sub: t('home.scanSub') },
-    { key: 'screenshot', icon: 'image', label: t('home.screenshot'), sub: t('home.screenshotSub') },
-    { key: 'link', icon: 'link', label: t('home.link'), sub: t('home.linkSub') },
-    { key: 'search', icon: 'search', label: t('home.search'), sub: t('home.searchSub') },
+    {
+      key: 'scan',
+      icon: 'camera',
+      label: t('home.scan'),
+      sub: t('home.scanSub'),
+    },
+    {
+      key: 'screenshot',
+      icon: 'image',
+      label: t('home.screenshot'),
+      sub: t('home.screenshotSub'),
+    },
+    {
+      key: 'link',
+      icon: 'link',
+      label: t('home.link'),
+      sub: t('home.linkSub'),
+    },
+    {
+      key: 'search',
+      icon: 'search',
+      label: t('home.search'),
+      sub: t('home.searchSub'),
+    },
   ];
 
   const submit = (value = query) => {
@@ -44,7 +67,10 @@ export default function HomeScreen({ onAnalyze }) {
       t('home.linkPromptTitle'),
       t('home.linkPromptMessage'),
       [
-        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.cancel'),
+          style: 'cancel',
+        },
         {
           text: t('home.linkAnalyze'),
           onPress: (text) => {
@@ -72,13 +98,17 @@ export default function HomeScreen({ onAnalyze }) {
       return;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: false,
-      quality: 1,
-    });
+    const result =
+      await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: false,
+        quality: 1,
+      });
 
-    if (!result.canceled && result.assets?.length > 0) {
+    if (
+      !result.canceled &&
+      result.assets?.length > 0
+    ) {
       const imageUri = result.assets[0].uri;
 
       Alert.alert(
@@ -92,7 +122,8 @@ export default function HomeScreen({ onAnalyze }) {
 
   const handleScan = async () => {
     if (!cameraPermission?.granted) {
-      const permission = await requestCameraPermission();
+      const permission =
+        await requestCameraPermission();
 
       if (!permission.granted) {
         Alert.alert(
@@ -157,7 +188,9 @@ export default function HomeScreen({ onAnalyze }) {
             style={styles.closeCamera}
             onPress={() => setShowCamera(false)}
           >
-            <Text style={styles.closeCameraText}>{t('common.close')}</Text>
+            <Text style={styles.closeCameraText}>
+              {t('common.close')}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -167,11 +200,18 @@ export default function HomeScreen({ onAnalyze }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.logo}>{t('app.name')}</Text>
-        <Text style={styles.tagline}>{t('app.tagline')}</Text>
+        <Text style={styles.logo}>
+          {t('app.name')}
+        </Text>
+
+        <Text style={styles.tagline}>
+          {t('app.tagline')}
+        </Text>
       </View>
 
-      <Text style={styles.question}>{t('home.title')}</Text>
+      <Text style={styles.question}>
+        {t('home.title')}
+      </Text>
 
       <View style={styles.grid}>
         {OPTIONS.map((o) => (
@@ -188,8 +228,13 @@ export default function HomeScreen({ onAnalyze }) {
               />
             </View>
 
-            <Text style={styles.optionLabel}>{o.label}</Text>
-            <Text style={styles.optionSub}>{o.sub}</Text>
+            <Text style={styles.optionLabel}>
+              {o.label}
+            </Text>
+
+            <Text style={styles.optionSub}>
+              {o.sub}
+            </Text>
           </Card>
         ))}
       </View>
@@ -372,3 +417,4 @@ const styles = StyleSheet.create({
     color: '#000',
   },
 });
+```
