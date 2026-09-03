@@ -1,4 +1,3 @@
-import i18n from './i18n';
 
 // Cambia questo indirizzo con l'IP del computer che esegue "npm start" dentro /backend
 // sulla tua rete Wi-Fi (NON "localhost": sul telefono punterebbe al telefono stesso).
