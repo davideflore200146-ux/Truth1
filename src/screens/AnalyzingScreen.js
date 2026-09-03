@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Animated, Easing, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -7,42 +6,69 @@ import { COLORS } from '../theme';
 export default function AnalyzingScreen({ onReady }) {
   const { t } = useTranslation();
 
+  const getMessage = (key, fallback) =>
+    t(key, {
+      defaultValue: fallback,
+    });
+
   const MESSAGES = [
-    t('analyzing.message1'),
-    t('analyzing.message2'),
-    t('analyzing.message3'),
-    t('analyzing.message4'),
-    t('analyzing.message5'),
+    getMessage(
+      'analyzing.message1',
+      'Analisi del prodotto in corso...'
+    ),
+    getMessage(
+      'analyzing.message2',
+      'Controllo del prezzo attuale...'
+    ),
+    getMessage(
+      'analyzing.message3',
+      'Confronto con i prezzi precedenti...'
+    ),
+    getMessage(
+      'analyzing.message4',
+      'Valutazione del prezzo reale...'
+    ),
+    getMessage(
+      'analyzing.message5',
+      'Preparazione del risultato...'
+    ),
   ];
 
   const [step, setStep] = useState(0);
+
   const spin = useRef(new Animated.Value(0)).current;
   const started = useRef(false);
 
   useEffect(() => {
-    Animated.loop(
+    const animation = Animated.loop(
       Animated.timing(spin, {
         toValue: 1,
         duration: 900,
         easing: Easing.linear,
         useNativeDriver: true,
       })
-    ).start();
-
-    const interval = setInterval(
-      () =>
-        setStep((s) =>
-          Math.min(s + 1, MESSAGES.length - 1)
-        ),
-      1600
     );
+
+    animation.start();
+
+    const interval = setInterval(() => {
+      setStep((currentStep) =>
+        Math.min(currentStep + 1, MESSAGES.length - 1)
+      );
+    }, 1600);
 
     if (!started.current) {
       started.current = true;
-      onReady();
+
+      if (typeof onReady === 'function') {
+        onReady();
+      }
     }
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      animation.stop();
+    };
   }, []);
 
   const rotate = spin.interpolate({
@@ -55,7 +81,9 @@ export default function AnalyzingScreen({ onReady }) {
       <Animated.View
         style={[
           styles.spinner,
-          { transform: [{ rotate }] },
+          {
+            transform: [{ rotate }],
+          },
         ]}
       />
 
@@ -71,6 +99,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 20,
   },
 
   spinner: {
