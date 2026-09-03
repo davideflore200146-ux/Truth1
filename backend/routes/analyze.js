@@ -6,6 +6,28 @@ const { searchTavily, formatTavilyResults } = require('../services/tavily');
 const { ANALYSIS_SYSTEM_PROMPT } = require('../services/prompts');
 const db = require('../db');
 
+const SUPPORTED_LANGUAGES = {
+  it: 'Italian',
+  en: 'English',
+  sc: 'Sardinian',
+  es: 'Spanish',
+  fr: 'French',
+  de: 'German',
+  pt: 'Portuguese'
+};
+
+function normalizeLanguage(language) {
+  if (!language || typeof language !== 'string') {
+    return 'it';
+  }
+
+  const normalized = language.toLowerCase().split('-')[0];
+
+  return SUPPORTED_LANGUAGES[normalized]
+    ? normalized
+    : 'it';
+}
+
 function normalize(data, query) {
   const safe = data && typeof data === 'object' ? data : {};
 
@@ -37,7 +59,7 @@ function normalize(data, query) {
 
 router.post('/', async (req, res) => {
   try {
-    const { query } = req.body || {};
+    const { query, language } = req.body || {};
 
     if (!query || typeof query !== 'string') {
       return res.status(400).json({
@@ -45,21 +67,54 @@ router.post('/', async (req, res) => {
       });
     }
 
+    const selectedLanguage = normalizeLanguage(language);
+    const languageName = SUPPORTED_LANGUAGES[selectedLanguage];
+
     let searchContext = '';
+
     try {
       const tavilyData = await searchTavily(`${query} prezzo recensioni offerte`);
       searchContext = formatTavilyResults(tavilyData);
     } catch (searchError) {
       console.error('Errore ricerca Tavily:', searchError);
-      // Continuiamo comunque: Gemini analizzerà senza dati di ricerca freschi
     }
 
     const userText = searchContext
-      ? `Analizza questo prodotto/offerta: ${query}\n\nRisultati di ricerca web aggiornati:\n${searchContext}`
-      : `Analizza questo prodotto/offerta: ${query}`;
+      ? `Analizza questo prodotto/offerta: ${query}
+
+LINGUA RICHIESTA DALL'UTENTE: ${languageName} (${selectedLanguage})
+
+IMPORTANTE:
+Tutti i contenuti testuali della risposta devono essere scritti esclusivamente nella lingua richiesta dall'utente.
+Non usare italiano se la lingua richiesta è diversa.
+Mantieni invariati i valori tecnici previsti dallo schema, inclusi "buy", "wait" e "avoid".
+
+Risultati di ricerca web aggiornati:
+${searchContext}`
+      : `Analizza questo prodotto/offerta: ${query}
+
+LINGUA RICHIESTA DALL'UTENTE: ${languageName} (${selectedLanguage})
+
+IMPORTANTE:
+Tutti i contenuti testuali della risposta devono essere scritti esclusivamente nella lingua richiesta dall'utente.
+Non usare italiano se la lingua richiesta è diversa.
+Mantieni invariati i valori tecnici previsti dallo schema, inclusi "buy", "wait" e "avoid".`;
+
+    const localizedSystemPrompt = `${ANALYSIS_SYSTEM_PROMPT}
+
+LINGUA OBBLIGATORIA DELL'UTENTE:
+${languageName} (${selectedLanguage})
+
+REGOLE LINGUISTICHE:
+- Tutti i testi generati devono essere esclusivamente nella lingua richiesta.
+- Non tradurre le chiavi JSON dello schema.
+- Non tradurre i valori tecnici "buy", "wait" e "avoid".
+- I nomi propri di marchi, negozi, prodotti e modelli devono mantenere la loro denominazione ufficiale quando necessario.
+- Non aggiungere spiegazioni fuori dal JSON.
+- Restituisci esclusivamente JSON valido.`;
 
     const response = await callGemini({
-      system: ANALYSIS_SYSTEM_PROMPT,
+      system: localizedSystemPrompt,
       userText,
       useSearch: false
     });
