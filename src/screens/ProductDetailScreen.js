@@ -62,7 +62,7 @@ verdictLabels[verdictKey] || 'WAIT',
 const handleSave = async () => {
 if (saved || saving) return;
 
-```
+
 setSaving(true);
 
 try {
@@ -82,7 +82,7 @@ try {
 } finally {
   setSaving(false);
 }
-```
+
 
 };
 
@@ -110,7 +110,7 @@ saved
 }
 />
 
-```
+
     <View style={{ paddingHorizontal: 18 }}>
       <Text style={styles.meta}>
         {[
@@ -595,7 +595,7 @@ saved
     </Text>
   </TouchableOpacity>
 </View>
-```
+
 
 );
 }
