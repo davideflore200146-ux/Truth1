@@ -47,7 +47,7 @@ router.post('/', async (req, res) => {
     const response = await callGemini({
       system: ANALYSIS_SYSTEM_PROMPT,
       userText: `Analizza questo prodotto/offerta: ${query}`,
-      useSearch: false,
+      useSearch: true,
     });
 
    const text = extractText(response);
