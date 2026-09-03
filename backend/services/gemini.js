@@ -1,30 +1,46 @@
-// Wrapper minimale per l'API Gemini (Google AI Studio) — livello gratuito, nessuna carta richiesta.
-// Richiede Node 18+ (usa il "fetch" globale, nessuna libreria extra necessaria).
-const MODEL = 'gemini-3.1-flash-lite';
+// Wrapper per Groq API.
+// Manteniamo gli stessi nomi delle funzioni usate dal backend,
+// così non dobbiamo modificare il resto di TRUTH.
+
+const MODEL = 'openai/gpt-oss-120b';
 
 async function callGemini({ system, userText, useSearch }) {
+  // Per evitare di dover modificare subito Render,
+  // utilizziamo la variabile che abbiamo già configurato:
+  // GEMINI_API_KEY contiene ora la chiave Groq.
   const apiKey = process.env.GEMINI_API_KEY;
+
   if (!apiKey || apiKey.includes('xxxxxxxx')) {
     throw new Error(
-      'GEMINI_API_KEY non configurata. Copia backend/.env.example in backend/.env e inserisci la tua chiave gratuita da aistudio.google.com/apikey'
+      'Chiave Groq non configurata. Controlla GEMINI_API_KEY su Render.'
     );
   }
 
   const body = {
-    contents: [{ role: 'user', parts: [{ text: userText }] }],
-    system_instruction: { parts: [{ text: system }] },
+    model: MODEL,
+    messages: [
+      {
+        role: 'system',
+        content: system,
+      },
+      {
+        role: 'user',
+        content: userText,
+      },
+    ],
+    response_format: {
+      type: 'json_object',
+    },
+    temperature: 0.2,
   };
-  if (useSearch) {
-    body.tools = [{ google_search: {} }];
-  }
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
+    'https://api.groq.com/openai/v1/chat/completions',
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify(body),
     }
@@ -32,13 +48,31 @@ async function callGemini({ system, userText, useSearch }) {
 
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`Gemini API ha risposto ${res.status}: ${errText}`);
+    throw new Error(`Groq API ha risposto ${res.status}: ${errText}`);
   }
-  return res.json();
+
+  const data = await res.json();
+
+  // Convertiamo la risposta Groq nel formato che il vecchio
+  // codice TRUTH si aspetta da Gemini.
+  return {
+    candidates: [
+      {
+        content: {
+          parts: [
+            {
+              text: data.choices?.[0]?.message?.content || '',
+            },
+          ],
+        },
+      },
+    ],
+  };
 }
 
 function extractText(response) {
   const parts = response.candidates?.[0]?.content?.parts || [];
+
   return parts
     .filter((p) => typeof p.text === 'string')
     .map((p) => p.text)
@@ -46,13 +80,24 @@ function extractText(response) {
 }
 
 function parseJsonFromText(text) {
-  const cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+  const cleaned = text
+    .replace(/```json/gi, '')
+    .replace(/```/g, '')
+    .trim();
+
   const start = cleaned.indexOf('{');
   const end = cleaned.lastIndexOf('}');
+
   if (start === -1 || end === -1) {
     throw new Error("La risposta dell'AI non contiene un JSON valido.");
   }
+
   return JSON.parse(cleaned.slice(start, end + 1));
 }
 
-module.exports = { callGemini, extractText, parseJsonFromText, MODEL };
+module.exports = {
+  callGemini,
+  extractText,
+  parseJsonFromText,
+  MODEL,
+};
