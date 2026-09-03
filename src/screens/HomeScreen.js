@@ -16,63 +16,103 @@ import { COLORS } from '../theme';
 import { Card } from '../components/ui';
 
 export default function HomeScreen({ onAnalyze }) {
-  const { t } = useTranslation();
+  const { t, ready } = useTranslation();
 
   const [query, setQuery] = useState('');
   const [showCamera, setShowCamera] = useState(false);
+
   const [cameraPermission, requestCameraPermission] =
     useCameraPermissions();
+
+  // Evita che una chiave i18n come "home.title" venga mostrata
+  // durante il breve periodo di inizializzazione delle traduzioni.
+  const tr = (key, fallback) => {
+    if (!ready) {
+      return fallback;
+    }
+
+    const translated = t(key);
+
+    if (!translated || translated === key) {
+      return fallback;
+    }
+
+    return translated;
+  };
 
   const OPTIONS = [
     {
       key: 'scan',
       icon: 'camera',
-      label: 'Scansiona',
+      label: tr('home.scan', 'Scansiona'),
     },
     {
       key: 'screenshot',
       icon: 'image',
-      label: 'Screenshot',
+      label: tr('home.screenshot', 'Screenshot'),
     },
     {
       key: 'link',
       icon: 'link',
-      label: 'Link',
+      label: tr('home.link', 'Link'),
     },
     {
       key: 'search',
       icon: 'search',
-      label: 'Search',
+      label: tr('home.search', 'Cerca'),
     },
   ];
 
   const submit = (value = query) => {
-    if (!value.trim()) {
+    const cleanValue = typeof value === 'string'
+      ? value.trim()
+      : '';
+
+    if (!cleanValue) {
       Alert.alert(
-        t('home.emptyTitle'),
-        t('home.emptyMessage')
+        tr('home.emptyTitle', 'Cosa vuoi verificare?'),
+        tr(
+          'home.emptyMessage',
+          'Scrivi il nome di un prodotto o incolla un link qui sotto, poi premi cerca.'
+        )
       );
       return;
     }
 
-    onAnalyze(value.trim());
+    onAnalyze(cleanValue);
   };
 
   const handleLink = () => {
+    if (typeof Alert.prompt !== 'function') {
+      Alert.alert(
+        tr('home.linkPromptTitle', 'Inserisci il link'),
+        tr(
+          'home.linkPromptMessage',
+          'Incolla qui il link del prodotto che vuoi verificare.'
+        )
+      );
+      return;
+    }
+
     Alert.prompt(
-      t('home.linkPromptTitle'),
-      t('home.linkPromptMessage'),
+      tr('home.linkPromptTitle', 'Inserisci il link'),
+      tr(
+        'home.linkPromptMessage',
+        'Incolla qui il link del prodotto che vuoi verificare.'
+      ),
       [
         {
-          text: t('common.cancel'),
+          text: tr('common.cancel', 'Annulla'),
           style: 'cancel',
         },
         {
-          text: t('home.linkAnalyze'),
+          text: tr('home.linkAnalyze', 'Analizza'),
           onPress: (text) => {
             if (text && text.trim()) {
-              setQuery(text.trim());
-              onAnalyze(text.trim());
+              const cleanLink = text.trim();
+
+              setQuery(cleanLink);
+              onAnalyze(cleanLink);
             }
           },
         },
@@ -83,54 +123,101 @@ export default function HomeScreen({ onAnalyze }) {
   };
 
   const handleScreenshot = async () => {
-    const permission =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    try {
+      const permission =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (!permission.granted) {
-      Alert.alert(
-        t('home.photoPermissionTitle'),
-        t('home.photoPermissionMessage')
+      if (!permission.granted) {
+        Alert.alert(
+          tr('home.photoPermissionTitle', 'Permesso necessario'),
+          tr(
+            'home.photoPermissionMessage',
+            'Per caricare uno screenshot devi consentire a TRUTH di accedere alle tue foto.'
+          )
+        );
+        return;
+      }
+
+      const result =
+        await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ['images'],
+          allowsEditing: false,
+          quality: 1,
+        });
+
+      if (
+        !result.canceled &&
+        result.assets &&
+        result.assets.length > 0
+      ) {
+        const imageUri = result.assets[0].uri;
+
+        Alert.alert(
+          tr(
+            'home.screenshotSelectedTitle',
+            'Screenshot selezionato'
+          ),
+          tr(
+            'home.screenshotSelectedMessage',
+            "Lo screenshot è stato caricato."
+          )
+        );
+
+        console.log('[TRUTH] Screenshot:', imageUri);
+      }
+    } catch (error) {
+      console.error(
+        '[TRUTH] Errore selezione screenshot:',
+        error
       );
-      return;
-    }
-
-    const result =
-      await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: false,
-        quality: 1,
-      });
-
-    if (
-      !result.canceled &&
-      result.assets?.length > 0
-    ) {
-      const imageUri = result.assets[0].uri;
 
       Alert.alert(
-        t('home.screenshotSelectedTitle'),
-        t('home.screenshotSelectedMessage')
+        tr('common.error', 'Si è verificato un errore'),
+        tr(
+          'home.photoPermissionMessage',
+          'Non è stato possibile selezionare lo screenshot.'
+        )
       );
-
-      console.log('[TRUTH] Screenshot:', imageUri);
     }
   };
 
   const handleScan = async () => {
-    if (!cameraPermission?.granted) {
-      const permission =
-        await requestCameraPermission();
+    try {
+      if (!cameraPermission?.granted) {
+        const permission =
+          await requestCameraPermission();
 
-      if (!permission.granted) {
-        Alert.alert(
-          t('home.cameraPermissionTitle'),
-          t('home.cameraPermissionMessage')
-        );
-        return;
+        if (!permission?.granted) {
+          Alert.alert(
+            tr(
+              'home.cameraPermissionTitle',
+              'Fotocamera necessaria'
+            ),
+            tr(
+              'home.cameraPermissionMessage',
+              'Per usare Scansiona devi consentire a TRUTH di usare la fotocamera.'
+            )
+          );
+
+          return;
+        }
       }
-    }
 
-    setShowCamera(true);
+      setShowCamera(true);
+    } catch (error) {
+      console.error(
+        '[TRUTH] Errore permesso fotocamera:',
+        error
+      );
+
+      Alert.alert(
+        tr('common.error', 'Si è verificato un errore'),
+        tr(
+          'home.cameraPermissionMessage',
+          'Non è stato possibile attivare la fotocamera.'
+        )
+      );
+    }
   };
 
   const handleOptionPress = (option) => {
@@ -166,16 +253,23 @@ export default function HomeScreen({ onAnalyze }) {
           onBarcodeScanned={({ data }) => {
             setShowCamera(false);
 
-            if (data) {
-              setQuery(data);
-              onAnalyze(data);
+            if (data && typeof data === 'string') {
+              const cleanData = data.trim();
+
+              if (cleanData) {
+                setQuery(cleanData);
+                onAnalyze(cleanData);
+              }
             }
           }}
         />
 
         <View style={styles.cameraOverlay}>
           <Text style={styles.cameraTitle}>
-            {t('home.cameraTitle')}
+            {tr(
+              'home.cameraTitle',
+              'Inquadra il QR code del prodotto'
+            )}
           </Text>
 
           <View style={styles.scanBox} />
@@ -185,7 +279,7 @@ export default function HomeScreen({ onAnalyze }) {
             onPress={() => setShowCamera(false)}
           >
             <Text style={styles.closeCameraText}>
-              {t('common.close')}
+              {tr('common.close', 'Chiudi')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -202,26 +296,29 @@ export default function HomeScreen({ onAnalyze }) {
       </View>
 
       <Text style={styles.question}>
-        {t('home.title')}
+        {tr(
+          'home.title',
+          'Cosa vuoi verificare?'
+        )}
       </Text>
 
       <View style={styles.grid}>
-        {OPTIONS.map((o) => (
+        {OPTIONS.map((option) => (
           <Card
-            key={o.key}
-            onPress={() => handleOptionPress(o)}
+            key={option.key}
+            onPress={() => handleOptionPress(option)}
             style={styles.optionCard}
           >
             <View style={styles.optionIcon}>
               <Feather
-                name={o.icon}
+                name={option.icon}
                 size={18}
                 color={COLORS.brand}
               />
             </View>
 
             <Text style={styles.optionLabel}>
-              {o.label}
+              {option.label}
             </Text>
           </Card>
         ))}
@@ -232,15 +329,21 @@ export default function HomeScreen({ onAnalyze }) {
           value={query}
           onChangeText={setQuery}
           onSubmitEditing={() => submit()}
-          placeholder=""
+          placeholder={tr(
+            'home.searchPlaceholder',
+            'Es. Sony WH-1000XM6, o incolla un link…'
+          )}
           placeholderTextColor={COLORS.textMuted}
           style={styles.searchInput}
           returnKeyType="search"
+          autoCapitalize="none"
+          autoCorrect={false}
         />
 
         <TouchableOpacity
           onPress={() => submit()}
           style={styles.searchBtn}
+          activeOpacity={0.8}
         >
           <Feather
             name="search"
