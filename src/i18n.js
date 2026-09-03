@@ -37,6 +37,18 @@ const resources = {
         recent: 'Analisi recenti',
         noRecent: 'Nessuna analisi recente',
         seeAll: 'Vedi tutto',
+        emptyTitle: 'Inserisci un prodotto',
+        emptyMessage: 'Inserisci il nome o il link di un prodotto da analizzare.',
+        linkPromptTitle: 'Inserisci il link',
+        linkPromptMessage: 'Incolla il link del prodotto che vuoi analizzare.',
+        linkAnalyze: 'Analizza',
+        photoPermissionTitle: 'Accesso alle foto',
+        photoPermissionMessage: 'Consenti a TRUTH di accedere alle tue foto per selezionare uno screenshot.',
+        screenshotSelectedTitle: 'Screenshot selezionato',
+        screenshotSelectedMessage: 'Lo screenshot è stato selezionato.',
+        cameraPermissionTitle: 'Accesso alla fotocamera',
+        cameraPermissionMessage: 'Consenti a TRUTH di usare la fotocamera per scansionare un codice.',
+        cameraTitle: 'Inquadra il codice del prodotto',
       },
 
       product: {
@@ -55,6 +67,42 @@ const resources = {
         noData: 'Dati non disponibili',
       },
 
+      analyzing: {
+        message1: 'Analisi del prodotto in corso...',
+        message2: 'Controllo del prezzo attuale...',
+        message3: 'Confronto con i prezzi precedenti...',
+        message4: 'Valutazione del prezzo reale...',
+        message5: 'Preparazione del risultato...',
+      },
+
+      result: {
+        truthScore: 'Punteggio TRUTH',
+        currentPrice: 'Prezzo attuale',
+        fairPrice: 'Prezzo corretto',
+        savings: 'Risparmio',
+        upTo: 'fino a',
+        why: 'Perché',
+        priceTrend: 'Andamento del prezzo',
+        noPriceHistory: 'Nessuno storico dei prezzi disponibile.',
+        alternatives: 'Alternative',
+        userReviews: 'Recensioni degli utenti',
+        truthCheck: 'Controllo TRUTH',
+        bestOffers: 'Migliori offerte',
+        shipping: 'Spedizione',
+        go: 'Vai',
+        priceAlert: 'Avviso prezzo',
+        alertMeAt: 'Avvisami quando il prezzo scende a €{{price}}',
+        alertDescription: 'Riceverai un avviso quando il prodotto raggiungerà il prezzo indicato.',
+        activate: 'Attiva',
+        askTruth: 'Chiedi a TRUTH',
+      },
+
+      verdict: {
+        buy: 'ACQUISTA',
+        wait: 'ASPETTA',
+        avoid: 'EVITA',
+      },
+
       history: {
         title: 'Cronologia',
         empty: 'Non hai ancora effettuato analisi.',
@@ -63,6 +111,13 @@ const resources = {
         clear: 'Cancella cronologia',
         clearTitle: 'Cancellare tutta la cronologia?',
         clearMessage: 'Tutte le analisi verranno eliminate definitivamente.',
+      },
+
+      wishlist: {
+        title: 'Wishlist',
+        empty: '',
+        monitored: 'Prezzo monitorato',
+        monitoredTarget: 'Obiettivo: €{{price}}',
       },
 
       account: {
@@ -141,6 +196,18 @@ const resources = {
         recent: 'Recent analyses',
         noRecent: 'No recent analyses',
         seeAll: 'See all',
+        emptyTitle: 'Enter a product',
+        emptyMessage: 'Enter the name or link of a product to analyze.',
+        linkPromptTitle: 'Enter the link',
+        linkPromptMessage: 'Paste the link of the product you want to analyze.',
+        linkAnalyze: 'Analyze',
+        photoPermissionTitle: 'Photo access',
+        photoPermissionMessage: 'Allow TRUTH to access your photos to select a screenshot.',
+        screenshotSelectedTitle: 'Screenshot selected',
+        screenshotSelectedMessage: 'The screenshot has been selected.',
+        cameraPermissionTitle: 'Camera access',
+        cameraPermissionMessage: 'Allow TRUTH to use the camera to scan a code.',
+        cameraTitle: 'Scan the product code',
       },
 
       product: {
@@ -159,6 +226,42 @@ const resources = {
         noData: 'Data unavailable',
       },
 
+      analyzing: {
+        message1: 'Analyzing the product...',
+        message2: 'Checking the current price...',
+        message3: 'Comparing previous prices...',
+        message4: 'Evaluating the real price...',
+        message5: 'Preparing your result...',
+      },
+
+      result: {
+        truthScore: 'TRUTH Score',
+        currentPrice: 'Current price',
+        fairPrice: 'Fair price',
+        savings: 'Savings',
+        upTo: 'up to',
+        why: 'Why',
+        priceTrend: 'Price trend',
+        noPriceHistory: 'No price history available.',
+        alternatives: 'Alternatives',
+        userReviews: 'User reviews',
+        truthCheck: 'TRUTH Check',
+        bestOffers: 'Best offers',
+        shipping: 'Shipping',
+        go: 'Go',
+        priceAlert: 'Price alert',
+        alertMeAt: 'Alert me when the price drops to €{{price}}',
+        alertDescription: 'You will receive an alert when the product reaches the selected price.',
+        activate: 'Activate',
+        askTruth: 'Ask TRUTH',
+      },
+
+      verdict: {
+        buy: 'BUY',
+        wait: 'WAIT',
+        avoid: 'AVOID',
+      },
+
       history: {
         title: 'History',
         empty: 'You have not performed any analyses yet.',
@@ -167,6 +270,13 @@ const resources = {
         clear: 'Clear history',
         clearTitle: 'Clear all history?',
         clearMessage: 'All analyses will be permanently deleted.',
+      },
+
+      wishlist: {
+        title: 'Wishlist',
+        empty: '',
+        monitored: 'Price monitored',
+        monitoredTarget: 'Target: €{{price}}',
       },
 
       account: {
@@ -245,6 +355,18 @@ const resources = {
         recent: 'Analisis reghentes',
         noRecent: 'Peruna analisi reghente',
         seeAll: 'Castia totu',
+        emptyTitle: 'Iscrie unu produtu',
+        emptyMessage: 'Iscrie su nòmine o su ligame de unu produtu.',
+        linkPromptTitle: 'Iscrie su ligame',
+        linkPromptMessage: 'Incolla su ligame de su produtu chi boles analizare.',
+        linkAnalyze: 'Analisa',
+        photoPermissionTitle: 'Apertura de is fotografias',
+        photoPermissionMessage: 'Permite a TRUTH de accedere a is fotografias tuas pro seberare unu screenshot.',
+        screenshotSelectedTitle: 'Screenshot seberadu',
+        screenshotSelectedMessage: 'Su screenshot est istadu seberadu.',
+        cameraPermissionTitle: 'Apertura de sa fotocàmera',
+        cameraPermissionMessage: 'Permite a TRUTH de impreare sa fotocàmera pro scansione.',
+        cameraTitle: 'Inquadra su còdighe de su produtu',
       },
 
       product: {
@@ -263,6 +385,42 @@ const resources = {
         noData: 'Datus non disponìbiles',
       },
 
+      analyzing: {
+        message1: 'S’analisi de su produtu est in cursu...',
+        message2: 'Controllu de su pretzu atuali...',
+        message3: 'Cumparatzione cun is pretzus anteriores...',
+        message4: 'Valutatzione de su pretzu reali...',
+        message5: 'Preparatzione de su resultadu...',
+      },
+
+      result: {
+        truthScore: 'Puntuatzione TRUTH',
+        currentPrice: 'Pretzu atuali',
+        fairPrice: 'Pretzu justu',
+        savings: 'Arresparmiu',
+        upTo: 'finas a',
+        why: 'Pro ite',
+        priceTrend: 'Andamentu de su pretzu',
+        noPriceHistory: 'Perunu istòricu de is pretzus disponìbile.',
+        alternatives: 'Alternativas',
+        userReviews: 'Recensiones de is usuarios',
+        truthCheck: 'Controllu TRUTH',
+        bestOffers: 'Mellus ofertas',
+        shipping: 'Speditzione',
+        go: 'Bae',
+        priceAlert: 'Avvisu pretzu',
+        alertMeAt: 'Avvisami cando su pretzu rùssit a €{{price}}',
+        alertDescription: 'As a retzire unu avvisu cando su produtu at a arrivare a su pretzu indicadu.',
+        activate: 'Ativa',
+        askTruth: 'Pregonta a TRUTH',
+      },
+
+      verdict: {
+        buy: 'CUMPARA',
+        wait: 'ASPETA',
+        avoid: 'EVITA',
+      },
+
       history: {
         title: 'Istòria',
         empty: 'No as fatu ancora peruna analisi.',
@@ -271,6 +429,13 @@ const resources = {
         clear: 'Burra s’istòria',
         clearTitle: 'Burrari totu s’istòria?',
         clearMessage: 'Totus is analisis ant a èssere burradas pro semper.',
+      },
+
+      wishlist: {
+        title: 'Preferidos',
+        empty: '',
+        monitored: 'Pretzu monitoradu',
+        monitoredTarget: 'Objetivu: €{{price}}',
       },
 
       account: {
@@ -349,6 +514,18 @@ const resources = {
         recent: 'Análisis recientes',
         noRecent: 'No hay análisis recientes',
         seeAll: 'Ver todo',
+        emptyTitle: 'Introduce un producto',
+        emptyMessage: 'Introduce el nombre o el enlace de un producto para analizarlo.',
+        linkPromptTitle: 'Introduce el enlace',
+        linkPromptMessage: 'Pega el enlace del producto que quieres analizar.',
+        linkAnalyze: 'Analizar',
+        photoPermissionTitle: 'Acceso a las fotos',
+        photoPermissionMessage: 'Permite que TRUTH acceda a tus fotos para seleccionar una captura.',
+        screenshotSelectedTitle: 'Captura seleccionada',
+        screenshotSelectedMessage: 'La captura ha sido seleccionada.',
+        cameraPermissionTitle: 'Acceso a la cámara',
+        cameraPermissionMessage: 'Permite que TRUTH use la cámara para escanear un código.',
+        cameraTitle: 'Enfoca el código del producto',
       },
 
       product: {
@@ -367,6 +544,42 @@ const resources = {
         noData: 'Datos no disponibles',
       },
 
+      analyzing: {
+        message1: 'Analizando el producto...',
+        message2: 'Comprobando el precio actual...',
+        message3: 'Comparando precios anteriores...',
+        message4: 'Evaluando el precio real...',
+        message5: 'Preparando el resultado...',
+      },
+
+      result: {
+        truthScore: 'Puntuación TRUTH',
+        currentPrice: 'Precio actual',
+        fairPrice: 'Precio justo',
+        savings: 'Ahorro',
+        upTo: 'hasta',
+        why: 'Por qué',
+        priceTrend: 'Evolución del precio',
+        noPriceHistory: 'No hay historial de precios disponible.',
+        alternatives: 'Alternativas',
+        userReviews: 'Opiniones de usuarios',
+        truthCheck: 'Comprobación TRUTH',
+        bestOffers: 'Mejores ofertas',
+        shipping: 'Envío',
+        go: 'Ir',
+        priceAlert: 'Alerta de precio',
+        alertMeAt: 'Avísame cuando el precio baje a {{price}} €',
+        alertDescription: 'Recibirás una alerta cuando el producto alcance el precio indicado.',
+        activate: 'Activar',
+        askTruth: 'Preguntar a TRUTH',
+      },
+
+      verdict: {
+        buy: 'COMPRAR',
+        wait: 'ESPERA',
+        avoid: 'EVITA',
+      },
+
       history: {
         title: 'Historial',
         empty: 'Todavía no has realizado ningún análisis.',
@@ -375,6 +588,13 @@ const resources = {
         clear: 'Borrar historial',
         clearTitle: '¿Borrar todo el historial?',
         clearMessage: 'Todos los análisis se eliminarán permanentemente.',
+      },
+
+      wishlist: {
+        title: 'Favoritos',
+        empty: '',
+        monitored: 'Precio monitorizado',
+        monitoredTarget: 'Objetivo: {{price}} €',
       },
 
       account: {
@@ -453,6 +673,18 @@ const resources = {
         recent: 'Analyses récentes',
         noRecent: 'Aucune analyse récente',
         seeAll: 'Voir tout',
+        emptyTitle: 'Entrez un produit',
+        emptyMessage: 'Entrez le nom ou le lien d’un produit à analyser.',
+        linkPromptTitle: 'Entrez le lien',
+        linkPromptMessage: 'Collez le lien du produit que vous souhaitez analyser.',
+        linkAnalyze: 'Analyser',
+        photoPermissionTitle: 'Accès aux photos',
+        photoPermissionMessage: 'Autorisez TRUTH à accéder à vos photos pour sélectionner une capture.',
+        screenshotSelectedTitle: 'Capture sélectionnée',
+        screenshotSelectedMessage: 'La capture a été sélectionnée.',
+        cameraPermissionTitle: 'Accès à la caméra',
+        cameraPermissionMessage: 'Autorisez TRUTH à utiliser la caméra pour scanner un code.',
+        cameraTitle: 'Cadrez le code du produit',
       },
 
       product: {
@@ -471,6 +703,42 @@ const resources = {
         noData: 'Données indisponibles',
       },
 
+      analyzing: {
+        message1: 'Analyse du produit en cours...',
+        message2: 'Vérification du prix actuel...',
+        message3: 'Comparaison avec les prix précédents...',
+        message4: 'Évaluation du prix réel...',
+        message5: 'Préparation du résultat...',
+      },
+
+      result: {
+        truthScore: 'Score TRUTH',
+        currentPrice: 'Prix actuel',
+        fairPrice: 'Prix juste',
+        savings: 'Économie',
+        upTo: 'jusqu’à',
+        why: 'Pourquoi',
+        priceTrend: 'Évolution du prix',
+        noPriceHistory: 'Aucun historique des prix disponible.',
+        alternatives: 'Alternatives',
+        userReviews: 'Avis des utilisateurs',
+        truthCheck: 'Vérification TRUTH',
+        bestOffers: 'Meilleures offres',
+        shipping: 'Livraison',
+        go: 'Voir',
+        priceAlert: 'Alerte de prix',
+        alertMeAt: 'M’avertir lorsque le prix descend à {{price}} €',
+        alertDescription: 'Vous recevrez une alerte lorsque le produit atteindra le prix indiqué.',
+        activate: 'Activer',
+        askTruth: 'Demander à TRUTH',
+      },
+
+      verdict: {
+        buy: 'ACHETER',
+        wait: 'ATTENDRE',
+        avoid: 'ÉVITER',
+      },
+
       history: {
         title: 'Historique',
         empty: 'Vous n’avez encore effectué aucune analyse.',
@@ -479,6 +747,13 @@ const resources = {
         clear: 'Effacer l’historique',
         clearTitle: 'Effacer tout l’historique ?',
         clearMessage: 'Toutes les analyses seront définitivement supprimées.',
+      },
+
+      wishlist: {
+        title: 'Favoris',
+        empty: '',
+        monitored: 'Prix surveillé',
+        monitoredTarget: 'Objectif : {{price}} €',
       },
 
       account: {
@@ -557,6 +832,18 @@ const resources = {
         recent: 'Letzte Analysen',
         noRecent: 'Keine aktuellen Analysen',
         seeAll: 'Alle anzeigen',
+        emptyTitle: 'Produkt eingeben',
+        emptyMessage: 'Gib den Namen oder Link eines Produkts ein.',
+        linkPromptTitle: 'Link eingeben',
+        linkPromptMessage: 'Füge den Link des Produkts ein, das du analysieren möchtest.',
+        linkAnalyze: 'Analysieren',
+        photoPermissionTitle: 'Zugriff auf Fotos',
+        photoPermissionMessage: 'Erlaube TRUTH den Zugriff auf deine Fotos, um einen Screenshot auszuwählen.',
+        screenshotSelectedTitle: 'Screenshot ausgewählt',
+        screenshotSelectedMessage: 'Der Screenshot wurde ausgewählt.',
+        cameraPermissionTitle: 'Kamerazugriff',
+        cameraPermissionMessage: 'Erlaube TRUTH die Kamera zum Scannen eines Codes zu verwenden.',
+        cameraTitle: 'Produktcode scannen',
       },
 
       product: {
@@ -575,6 +862,42 @@ const resources = {
         noData: 'Keine Daten verfügbar',
       },
 
+      analyzing: {
+        message1: 'Produkt wird analysiert...',
+        message2: 'Aktuellen Preis wird geprüft...',
+        message3: 'Frühere Preise werden verglichen...',
+        message4: 'Der tatsächliche Preis wird bewertet...',
+        message5: 'Ergebnis wird vorbereitet...',
+      },
+
+      result: {
+        truthScore: 'TRUTH-Bewertung',
+        currentPrice: 'Aktueller Preis',
+        fairPrice: 'Fairer Preis',
+        savings: 'Ersparnis',
+        upTo: 'bis zu',
+        why: 'Warum',
+        priceTrend: 'Preisentwicklung',
+        noPriceHistory: 'Keine Preishistorie verfügbar.',
+        alternatives: 'Alternativen',
+        userReviews: 'Nutzerbewertungen',
+        truthCheck: 'TRUTH-Prüfung',
+        bestOffers: 'Beste Angebote',
+        shipping: 'Versand',
+        go: 'Öffnen',
+        priceAlert: 'Preisalarm',
+        alertMeAt: 'Benachrichtige mich, wenn der Preis auf {{price}} € fällt',
+        alertDescription: 'Du erhältst eine Benachrichtigung, wenn das Produkt den angegebenen Preis erreicht.',
+        activate: 'Aktivieren',
+        askTruth: 'TRUTH fragen',
+      },
+
+      verdict: {
+        buy: 'KAUFEN',
+        wait: 'WARTEN',
+        avoid: 'MEIDEN',
+      },
+
       history: {
         title: 'Verlauf',
         empty: 'Du hast noch keine Analysen durchgeführt.',
@@ -583,6 +906,13 @@ const resources = {
         clear: 'Verlauf löschen',
         clearTitle: 'Gesamten Verlauf löschen?',
         clearMessage: 'Alle Analysen werden dauerhaft gelöscht.',
+      },
+
+      wishlist: {
+        title: 'Wunschliste',
+        empty: '',
+        monitored: 'Preis wird überwacht',
+        monitoredTarget: 'Ziel: {{price}} €',
       },
 
       account: {
@@ -661,6 +991,18 @@ const resources = {
         recent: 'Análises recentes',
         noRecent: 'Nenhuma análise recente',
         seeAll: 'Ver tudo',
+        emptyTitle: 'Introduz um produto',
+        emptyMessage: 'Introduz o nome ou o link de um produto para analisar.',
+        linkPromptTitle: 'Introduz o link',
+        linkPromptMessage: 'Cola o link do produto que queres analisar.',
+        linkAnalyze: 'Analisar',
+        photoPermissionTitle: 'Acesso às fotografias',
+        photoPermissionMessage: 'Permite que o TRUTH aceda às tuas fotografias para selecionar uma captura de ecrã.',
+        screenshotSelectedTitle: 'Captura selecionada',
+        screenshotSelectedMessage: 'A captura de ecrã foi selecionada.',
+        cameraPermissionTitle: 'Acesso à câmara',
+        cameraPermissionMessage: 'Permite que o TRUTH use a câmara para digitalizar um código.',
+        cameraTitle: 'Enquadra o código do produto',
       },
 
       product: {
@@ -679,6 +1021,42 @@ const resources = {
         noData: 'Dados indisponíveis',
       },
 
+      analyzing: {
+        message1: 'A analisar o produto...',
+        message2: 'A verificar o preço atual...',
+        message3: 'A comparar preços anteriores...',
+        message4: 'A avaliar o preço real...',
+        message5: 'A preparar o resultado...',
+      },
+
+      result: {
+        truthScore: 'Pontuação TRUTH',
+        currentPrice: 'Preço atual',
+        fairPrice: 'Preço justo',
+        savings: 'Poupança',
+        upTo: 'até',
+        why: 'Porquê',
+        priceTrend: 'Evolução do preço',
+        noPriceHistory: 'Não há histórico de preços disponível.',
+        alternatives: 'Alternativas',
+        userReviews: 'Avaliações dos utilizadores',
+        truthCheck: 'Verificação TRUTH',
+        bestOffers: 'Melhores ofertas',
+        shipping: 'Envio',
+        go: 'Abrir',
+        priceAlert: 'Alerta de preço',
+        alertMeAt: 'Avisa-me quando o preço baixar para {{price}} €',
+        alertDescription: 'Receberás um alerta quando o produto atingir o preço indicado.',
+        activate: 'Ativar',
+        askTruth: 'Perguntar ao TRUTH',
+      },
+
+      verdict: {
+        buy: 'COMPRAR',
+        wait: 'ESPERAR',
+        avoid: 'EVITAR',
+      },
+
       history: {
         title: 'Histórico',
         empty: 'Ainda não realizaste nenhuma análise.',
@@ -687,6 +1065,13 @@ const resources = {
         clear: 'Limpar histórico',
         clearTitle: 'Limpar todo o histórico?',
         clearMessage: 'Todas as análises serão eliminadas permanentemente.',
+      },
+
+      wishlist: {
+        title: 'Favoritos',
+        empty: '',
+        monitored: 'Preço monitorizado',
+        monitoredTarget: 'Objetivo: {{price}} €',
       },
 
       account: {
