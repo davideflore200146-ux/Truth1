@@ -27,13 +27,13 @@ i18n.language || 'it'
 const translate = (key, fallback) => {
 const value = t(key);
 
-```
+
 if (!value || value === key) {
   return fallback;
 }
 
 return value;
-```
+
 
 };
 
@@ -56,7 +56,7 @@ return (
 <View style={{ flex: 1 }}>
 <TopBar title={translate('account.title', 'Account')} />
 
-```
+
   <View style={{ paddingHorizontal: 18, paddingTop: 6 }}>
     <Card style={styles.languageCard}>
       <Text style={styles.sectionTitle}>
@@ -145,7 +145,7 @@ return (
     </Card>
   </View>
 </View>
-```
+
 
 );
 }
