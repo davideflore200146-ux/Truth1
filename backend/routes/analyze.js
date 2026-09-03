@@ -70,6 +70,9 @@ router.post('/', async (req, res) => {
     const selectedLanguage = normalizeLanguage(language);
     const languageName = SUPPORTED_LANGUAGES[selectedLanguage];
 
+    // Data corrente reale del server.
+    const currentDate = new Date().toISOString().slice(0, 10);
+
     let searchContext = '';
 
     try {
@@ -82,6 +85,8 @@ router.post('/', async (req, res) => {
     const userText = searchContext
       ? `Analizza questo prodotto/offerta: ${query}
 
+DATA CORRENTE REALE: ${currentDate}
+
 LINGUA RICHIESTA DALL'UTENTE: ${languageName} (${selectedLanguage})
 
 IMPORTANTE:
@@ -89,18 +94,41 @@ Tutti i contenuti testuali della risposta devono essere scritti esclusivamente n
 Non usare italiano se la lingua richiesta è diversa.
 Mantieni invariati i valori tecnici previsti dallo schema, inclusi "buy", "wait" e "avoid".
 
+La data corrente sopra indicata è la data reale da usare per valutare:
+- se il prodotto è già stato annunciato;
+- se è già stato rilasciato;
+- se è attualmente disponibile;
+- se un'offerta è attuale;
+- quanto sono recenti le informazioni trovate.
+
 Risultati di ricerca web aggiornati:
 ${searchContext}`
       : `Analizza questo prodotto/offerta: ${query}
+
+DATA CORRENTE REALE: ${currentDate}
 
 LINGUA RICHIESTA DALL'UTENTE: ${languageName} (${selectedLanguage})
 
 IMPORTANTE:
 Tutti i contenuti testuali della risposta devono essere scritti esclusivamente nella lingua richiesta dall'utente.
 Non usare italiano se la lingua richiesta è diversa.
-Mantieni invariati i valori tecnici previsti dallo schema, inclusi "buy", "wait" e "avoid".`;
+Mantieni invariati i valori tecnici previsti dallo schema, inclusi "buy", "wait" e "avoid".
+
+La data corrente sopra indicata è la data reale da usare per valutare:
+- se il prodotto è già stato annunciato;
+- se è già stato rilasciato;
+- se è attualmente disponibile;
+- se un'offerta è attuale;
+- quanto sono recenti le informazioni trovate.`;
 
     const localizedSystemPrompt = `${ANALYSIS_SYSTEM_PROMPT}
+
+DATA CORRENTE REALE:
+${currentDate}
+
+Usa questa data come riferimento temporale assoluto per tutta l'analisi.
+
+Quando valuti se un prodotto è già uscito, annunciato, disponibile o ancora futuro, confronta sempre le date trovate nelle fonti con questa data corrente reale.
 
 LINGUA OBBLIGATORIA DELL'UTENTE:
 ${languageName} (${selectedLanguage})
