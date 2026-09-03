@@ -1,10 +1,24 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+View,
+Text,
+TouchableOpacity,
+StyleSheet,
+Alert,
+ActivityIndicator,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { COLORS } from '../theme';
 import { Card, TopBar } from '../components/ui';
 import i18n from '../i18n';
+
+import {
+getPlusOfferings,
+isPlusActive,
+purchasePlus,
+restorePurchases,
+} from '../services/subscriptionService';
 
 const LANGUAGES = [
 { code: 'it', label: '🇮🇹 Italiano' },
@@ -20,6 +34,7 @@ export default function AccountScreen() {
 const { t } = useTranslation();
 
 const [plusActive, setPlusActive] = useState(false);
+const [purchaseLoading, setPurchaseLoading] = useState(false);
 const [selectedLanguage, setSelectedLanguage] = useState(
 i18n.language || 'it'
 );
@@ -37,14 +52,131 @@ return value;
 
 };
 
-const handlePurchase = () => {
-Alert.alert(
-translate('account.purchaseTitle', 'TRUTH Plus'),
-translate(
-'account.purchaseMessage',
-'La funzione di acquisto sarà disponibile prossimamente.'
-)
-);
+useEffect(() => {
+let mounted = true;
+
+
+const loadSubscriptionStatus = async () => {
+  const active = await isPlusActive();
+
+  if (mounted) {
+    setPlusActive(active);
+  }
+};
+
+loadSubscriptionStatus();
+
+return () => {
+  mounted = false;
+};
+
+
+}, []);
+
+const handlePurchase = async () => {
+if (purchaseLoading) {
+return;
+}
+
+
+setPurchaseLoading(true);
+
+try {
+  const offerings = await getPlusOfferings();
+
+  if (!offerings) {
+    throw new Error(
+      'Nessuna offerta TRUTH Plus disponibile.'
+    );
+  }
+
+  const monthlyPackage =
+    offerings.monthly ??
+    offerings.availablePackages?.[0] ??
+    null;
+
+  if (!monthlyPackage) {
+    throw new Error(
+      'Il piano mensile di TRUTH Plus non è disponibile.'
+    );
+  }
+
+  const active = await purchasePlus(monthlyPackage);
+
+  if (active) {
+    setPlusActive(true);
+
+    Alert.alert(
+      translate('account.purchaseTitle', 'TRUTH Plus'),
+      translate(
+        'account.activeMessage',
+        'TRUTH Plus è attivo.'
+      )
+    );
+  }
+} catch (error) {
+  console.error(
+    '[AccountScreen] Errore acquisto:',
+    error
+  );
+
+  Alert.alert(
+    translate('account.purchaseTitle', 'TRUTH Plus'),
+    error?.message ||
+      translate(
+        'common.tryAgain',
+        'Riprova tra poco.'
+      )
+  );
+} finally {
+  setPurchaseLoading(false);
+}
+
+
+};
+
+const handleRestore = async () => {
+if (purchaseLoading) {
+return;
+}
+
+
+setPurchaseLoading(true);
+
+try {
+  const active = await restorePurchases();
+
+  setPlusActive(active);
+
+  if (active) {
+    Alert.alert(
+      translate('account.purchaseTitle', 'TRUTH Plus'),
+      translate(
+        'account.activeMessage',
+        'TRUTH Plus è attivo.'
+      )
+    );
+  } else {
+    Alert.alert(
+      translate('account.purchaseTitle', 'TRUTH Plus'),
+      'Non sono stati trovati acquisti da ripristinare.'
+    );
+  }
+} catch (error) {
+  console.error(
+    '[AccountScreen] Errore ripristino:',
+    error
+  );
+
+  Alert.alert(
+    translate('account.purchaseTitle', 'TRUTH Plus'),
+    'Impossibile ripristinare gli acquisti.'
+  );
+} finally {
+  setPurchaseLoading(false);
+}
+
+
 };
 
 const changeLanguage = (language) => {
@@ -54,7 +186,9 @@ setSelectedLanguage(language);
 
 return (
 <View style={{ flex: 1 }}>
-<TopBar title={translate('account.title', 'Account')} />
+<TopBar
+title={translate('account.title', 'Account')}
+/>
 
 
   <View style={{ paddingHorizontal: 18, paddingTop: 6 }}>
@@ -79,7 +213,9 @@ return (
               selectedLanguage === language.code &&
                 styles.languageButtonActive,
             ]}
-            onPress={() => changeLanguage(language.code)}
+            onPress={() =>
+              changeLanguage(language.code)
+            }
           >
             <Text
               style={[
@@ -102,7 +238,10 @@ return (
     <Card style={styles.plusCard}>
       <View style={styles.plusHeader}>
         <Text style={styles.plusTitle}>
-          {translate('account.purchaseTitle', 'TRUTH Plus')}
+          {translate(
+            'account.purchaseTitle',
+            'TRUTH Plus'
+          )}
         </Text>
 
         {plusActive ? (
@@ -111,7 +250,7 @@ return (
           </Text>
         ) : (
           <Text style={styles.plusPrice}>
-            {translate('premium.monthly', 'Mensile')}
+            $9.99 / mese
           </Text>
         )}
       </View>
@@ -131,16 +270,56 @@ return (
               'TRUTH Plus è attivo.'
             )}
           </Text>
+
+          <TouchableOpacity
+            style={styles.restoreBtn}
+            onPress={handleRestore}
+            disabled={purchaseLoading}
+          >
+            {purchaseLoading ? (
+              <ActivityIndicator
+                size="small"
+                color={COLORS.brand}
+              />
+            ) : (
+              <Text style={styles.restoreText}>
+                Ripristina acquisti
+              </Text>
+            )}
+          </TouchableOpacity>
         </View>
       ) : (
-        <TouchableOpacity
-          style={styles.plusBtn}
-          onPress={handlePurchase}
-        >
-          <Text style={styles.plusBtnText}>
-            {translate('account.upgrade', 'Passa a Plus')}
-          </Text>
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity
+            style={styles.plusBtn}
+            onPress={handlePurchase}
+            disabled={purchaseLoading}
+          >
+            {purchaseLoading ? (
+              <ActivityIndicator
+                size="small"
+                color={COLORS.bg}
+              />
+            ) : (
+              <Text style={styles.plusBtnText}>
+                {translate(
+                  'account.upgrade',
+                  'Passa a Plus'
+                )}
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.restoreBtn}
+            onPress={handleRestore}
+            disabled={purchaseLoading}
+          >
+            <Text style={styles.restoreText}>
+              Ripristina acquisti
+            </Text>
+          </TouchableOpacity>
+        </>
       )}
     </Card>
   </View>
@@ -244,6 +423,8 @@ backgroundColor: COLORS.brand,
 borderRadius: 11,
 paddingVertical: 11,
 alignItems: 'center',
+minHeight: 42,
+justifyContent: 'center',
 },
 
 plusBtnText: {
@@ -252,9 +433,21 @@ fontWeight: '700',
 fontSize: 13,
 },
 
+restoreBtn: {
+marginTop: 10,
+paddingVertical: 8,
+alignItems: 'center',
+justifyContent: 'center',
+},
+
+restoreText: {
+color: COLORS.brand,
+fontWeight: '600',
+fontSize: 12,
+},
+
 activeBox: {
 marginTop: 12,
-paddingVertical: 10,
 },
 
 activeBoxText: {
