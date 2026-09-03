@@ -5,6 +5,8 @@ workflows:
     name: TRUTH Android
     instance_type: mac_mini_m2
     environment:
+      groups:
+        - truth
       node: 20
     scripts:
       - name: Install dependencies
