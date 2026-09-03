@@ -232,7 +232,7 @@ export default function HomeScreen({ onAnalyze }) {
           value={query}
           onChangeText={setQuery}
           onSubmitEditing={() => submit()}
-          placeholder={t('home.searchPlaceholder')}
+          placeholder=""
           placeholderTextColor={COLORS.textMuted}
           style={styles.searchInput}
           returnKeyType="search"
