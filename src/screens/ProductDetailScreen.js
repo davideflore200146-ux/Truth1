@@ -341,7 +341,7 @@ saved
           })}
         >
           <Card>
-            {product.reviews.positive.map((p) => (
+            {product.reviews?.positive?.map((p) => (
               <View
                 key={p}
                 style={styles.reviewRow}
@@ -360,12 +360,12 @@ saved
               </View>
             ))}
 
-            {product.reviews.positive.length > 0 &&
-              product.reviews.issues.length > 0 && (
+            {product.reviews?.positive?.length > 0 &&
+              product.reviews?.issues?.length > 0 && (
                 <View style={styles.divider} />
               )}
 
-            {product.reviews.issues.map((p) => (
+            {product.reviews?.issues?.map((p) => (
               <View
                 key={p}
                 style={styles.reviewRow}
@@ -384,7 +384,7 @@ saved
               </View>
             ))}
 
-            {product.reviews.insight ? (
+            {product.reviews?.insight ? (
               <View style={styles.insightBox}>
                 <Feather
                   name="zap"
