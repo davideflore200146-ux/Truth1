@@ -1,107 +1,213 @@
 import Purchases from 'react-native-purchases';
 import { Platform } from 'react-native';
 
-// Chiavi RevenueCat (da .env). Se vuote, TRUTH continua a funzionare
-// senza abbonamenti (utile in build di test / prima della configurazione
-// di Apple/Google in App Store Connect e Play Console).
-const REVENUECAT_API_KEY_IOS = process.env.REVENUECAT_API_KEY_IOS || '';
-const REVENUECAT_API_KEY_ANDROID = process.env.REVENUECAT_API_KEY_ANDROID || '';
+const REVENUECAT_API_KEY_IOS =
+process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_IOS || '';
 
-// ID dell'entitlement configurato su RevenueCat per TRUTH PLUS
+const REVENUECAT_API_KEY_ANDROID =
+process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID || '';
+
 const ENTITLEMENT_ID = 'truth_plus';
 
 let initialized = false;
-let subscriptionsAvailable = false;
 
-/**
- * Inizializza RevenueCat.
- * Per ora, se le chiavi sono vuote, non fa nulla.
- * Questo permette a TRUTH di continuare a funzionare anche
- * prima della configurazione di Apple/Google.
- */
+function getApiKey() {
+if (Platform.OS === 'ios') {
+return REVENUECAT_API_KEY_IOS;
+}
+
+if (Platform.OS === 'android') {
+return REVENUECAT_API_KEY_ANDROID;
+}
+
+return '';
+}
+
 export async function initializeSubscriptions() {
-  initialized = true;
-  subscriptionsAvailable = false;
+if (initialized) {
+return true;
+}
 
-  console.log(
-    '[subscriptionService] RevenueCat disabilitato nella build di test.'
+const apiKey = getApiKey();
+
+if (!apiKey) {
+console.warn(
+'[subscriptionService] Chiave RevenueCat non configurata per questa piattaforma.'
+);
+return false;
+}
+
+try {
+Purchases.configure({
+apiKey,
+});
+
+
+initialized = true;
+
+console.log(
+  '[subscriptionService] RevenueCat inizializzato correttamente.'
+);
+
+return true;
+
+
+} catch (error) {
+console.error(
+'[subscriptionService] Errore inizializzazione RevenueCat:',
+error
+);
+
+
+return false;
+
+
+}
+}
+
+async function ensureInitialized() {
+if (initialized) {
+return true;
+}
+
+return initializeSubscriptions();
+}
+
+export async function isPlusActive() {
+const ready = await ensureInitialized();
+
+if (!ready) {
+return false;
+}
+
+try {
+const customerInfo = await Purchases.getCustomerInfo();
+
+
+return Boolean(
+  customerInfo?.entitlements?.active?.[ENTITLEMENT_ID]
+);
+
+
+} catch (error) {
+console.error(
+'[subscriptionService] Errore controllo stato abbonamento:',
+error
+);
+
+
+return false;
+
+
+}
+}
+
+export async function getPlusOfferings() {
+const ready = await ensureInitialized();
+
+if (!ready) {
+return null;
+}
+
+try {
+const offerings = await Purchases.getOfferings();
+
+
+return offerings?.current ?? null;
+
+
+} catch (error) {
+console.error(
+'[subscriptionService] Errore recupero offerte:',
+error
+);
+
+
+return null;
+
+
+}
+}
+
+export async function purchasePlus(packageToPurchase) {
+const ready = await ensureInitialized();
+
+if (!ready) {
+throw new Error(
+'RevenueCat non è configurato per questa build.'
+);
+}
+
+try {
+let pkg = packageToPurchase;
+
+
+if (!pkg) {
+  const offering = await getPlusOfferings();
+
+  pkg =
+    offering?.monthly ??
+    offering?.availablePackages?.[0] ??
+    null;
+}
+
+if (!pkg) {
+  throw new Error(
+    'Nessun pacchetto TRUTH PLUS disponibile al momento.'
   );
 }
 
-/**
- * Verifica se l'utente ha TRUTH PLUS attivo.
- */
-export async function isPlusActive() {
-  if (!subscriptionsAvailable) return false;
+const result = await Purchases.purchasePackage(pkg);
 
-  try {
-    const customerInfo = await Purchases.getCustomerInfo();
-    return typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== 'undefined';
-  } catch (error) {
-    console.error('[subscriptionService] Errore controllo stato abbonamento:', error);
-    return false;
-  }
+const customerInfo = result?.customerInfo;
+
+return Boolean(
+  customerInfo?.entitlements?.active?.[ENTITLEMENT_ID]
+);
+
+
+} catch (error) {
+if (error?.userCancelled) {
+return false;
 }
 
-/**
- * Recupera le offerte disponibili per TRUTH PLUS (piani mensile/annuale).
- */
-export async function getPlusOfferings() {
-  if (!subscriptionsAvailable) return null;
 
-  try {
-    const offerings = await Purchases.getOfferings();
-    return offerings.current ?? null;
-  } catch (error) {
-    console.error('[subscriptionService] Errore recupero offerte:', error);
-    return null;
-  }
+console.error(
+  '[subscriptionService] Errore durante l’acquisto:',
+  error
+);
+
+throw error;
+
+
+}
 }
 
-/**
- * Avvia l'acquisto di TRUTH PLUS.
- * @param {object} [packageToPurchase] - Il pacchetto scelto (da getPlusOfferings()).
- *   Se omesso, usa il pacchetto disponibile nell'offering corrente.
- */
-export async function purchasePlus(packageToPurchase) {
-  if (!subscriptionsAvailable) {
-    throw new Error('TRUTH PLUS non disponibile nella build di test.');
-  }
-
-  try {
-    let pkg = packageToPurchase;
-
-    if (!pkg) {
-      const offering = await getPlusOfferings();
-      pkg = offering?.availablePackages?.[0];
-    }
-
-    if (!pkg) {
-      throw new Error('Nessun pacchetto TRUTH PLUS disponibile al momento.');
-    }
-
-    const { customerInfo } = await Purchases.purchasePackage(pkg);
-    return typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== 'undefined';
-  } catch (error) {
-    if (error.userCancelled) {
-      return false;
-    }
-    console.error('[subscriptionService] Errore durante l\'acquisto:', error);
-    throw error;
-  }
-}
-
-/**
- * Ripristina acquisti precedenti (es. cambio dispositivo, reinstallazione app).
- */
 export async function restorePurchases() {
-  if (!subscriptionsAvailable) return false;
+const ready = await ensureInitialized();
 
-  try {
-    const customerInfo = await Purchases.restorePurchases();
-    return typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== 'undefined';
-  } catch (error) {
-    console.error('[subscriptionService] Errore ripristino acquisti:', error);
-    return false;
-  }
+if (!ready) {
+return false;
+}
+
+try {
+const customerInfo = await Purchases.restorePurchases();
+
+
+return Boolean(
+  customerInfo?.entitlements?.active?.[ENTITLEMENT_ID]
+);
+
+
+} catch (error) {
+console.error(
+'[subscriptionService] Errore ripristino acquisti:',
+error
+);
+
+
+return false;
+
+
+}
 }
