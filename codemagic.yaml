@@ -3,7 +3,7 @@ name: TRUTH Build
 workflows:
   android:
     name: TRUTH Android
-    instance_type: linux_x2
+    instance_type: mac_mini_m2
     environment:
       node: 20
     scripts:
