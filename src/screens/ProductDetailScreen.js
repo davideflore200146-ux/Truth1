@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from ‘react’;
 import {
 View,
 Text,
@@ -7,19 +7,19 @@ TouchableOpacity,
 StyleSheet,
 Dimensions,
 Alert,
-} from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import { useTranslation } from 'react-i18next';
-import { COLORS, VERDICTS } from '../theme';
-import { addToWishlist } from '../api';
-import { Card, Section, TopBar } from '../components/ui';
-import TruthDial from '../components/TruthDial';
-import PriceChart from '../components/PriceChart';
+} from ‘react-native’;
+import { Feather } from ‘@expo/vector-icons’;
+import { useTranslation } from ‘react-i18next’;
+import { COLORS, VERDICTS } from ‘../theme’;
+import { addToWishlist } from ‘../api’;
+import { Card, Section, TopBar } from ‘../components/ui’;
+import TruthDial from ‘../components/TruthDial’;
+import PriceChart from ‘../components/PriceChart’;
 
-const { width: SCREEN_W } = Dimensions.get('window');
+const { width: SCREEN_W } = Dimensions.get(‘window’);
 
 function fmt(n) {
-return typeof n === 'number' ? `€${n}` : '—';
+return typeof n === ‘number’ ? €${n} : ‘—’;
 }
 
 export default function ProductDetailScreen({
@@ -44,25 +44,42 @@ const [saved, setSaved] = useState(false);
 const v =
 VERDICTS[product.verdict] || VERDICTS.wait;
 
+const verdictKey =
+product.verdict || ‘wait’;
+
+const verdictLabels = {
+buy: ‘BUY’,
+wait: ‘WAIT’,
+avoid: ‘AVOID’,
+};
+
+const verdictLabel =
+t(verdict.${verdictKey}, {
+defaultValue:
+verdictLabels[verdictKey] || ‘WAIT’,
+});
+
 const handleSave = async () => {
 if (saved || saving) return;
 
-
 setSaving(true);
-
 try {
   await addToWishlist(product);
   setSaved(true);
   onSaved && onSaved();
 } catch (err) {
   Alert.alert(
-    t('common.error'),
-    err?.message || t('common.tryAgain')
+    t('common.error', {
+      defaultValue: 'Errore',
+    }),
+    err?.message ||
+      t('common.tryAgain', {
+        defaultValue: 'Riprova',
+      })
   );
 } finally {
   setSaving(false);
 }
-
 
 };
 
@@ -77,22 +94,18 @@ paddingBottom: 110,
 <TopBar
 onBack={onBack}
 title={product.name}
-right={ <TouchableOpacity
-           onPress={handleSave}
-           disabled={saving}
-         >
+right={
 <Feather
-name="heart"
+name=“heart”
 size={20}
 color={
 saved
 ? COLORS.red
 : COLORS.textMuted
 }
-/> </TouchableOpacity>
+/>
 }
 />
-
 
     <View style={{ paddingHorizontal: 18 }}>
       <Text style={styles.meta}>
@@ -103,7 +116,6 @@ saved
           .filter(Boolean)
           .join(' · ')}
       </Text>
-
       <View
         style={{
           alignItems: 'center',
@@ -115,7 +127,6 @@ saved
           color={v.color}
           size={190}
         />
-
         <View
           style={[
             styles.verdictPill,
@@ -129,36 +140,33 @@ saved
             size={15}
             color={v.color}
           />
-
           <Text
             style={[
               styles.verdictLabel,
               { color: v.color },
             ]}
           >
-            {t(
-              `verdict.${product.verdict || 'wait'}`
-            )}
+            {verdictLabel}
           </Text>
         </View>
       </View>
-
       <View style={styles.statsRow}>
         <Card style={styles.statCard}>
           <Text style={styles.statLabel}>
-            {t('result.currentPrice')}
+            {t('result.currentPrice', {
+              defaultValue: 'Current price',
+            })}
           </Text>
-
           <Text style={styles.statValue}>
             {fmt(product.currentPrice)}
           </Text>
         </Card>
-
         <Card style={styles.statCard}>
           <Text style={styles.statLabel}>
-            {t('result.fairPrice')}
+            {t('result.fairPrice', {
+              defaultValue: 'Fair price',
+            })}
           </Text>
-
           <Text
             style={[
               styles.statValue,
@@ -171,30 +179,36 @@ saved
               : '—'}
           </Text>
         </Card>
-
         <Card style={styles.statCard}>
           <Text style={styles.statLabel}>
-            {t('result.savings')}
+            {t('result.savings', {
+              defaultValue: 'Savings',
+            })}
           </Text>
-
           <Text style={styles.statValue}>
             {product.savings != null
-              ? `${t('result.upTo')} €${product.savings}`
+              ? `${t('result.upTo', {
+                  defaultValue: 'Up to',
+                })} €${product.savings}`
               : '—'}
           </Text>
         </Card>
       </View>
-
-      <Section title={t('result.why')}>
+      <Section
+        title={t('result.why', {
+          defaultValue: 'Why',
+        })}
+      >
         <Card>
           <Text style={styles.bodyText}>
             {product.reasoning}
           </Text>
         </Card>
       </Section>
-
       <Section
-        title={t('result.priceTrend')}
+        title={t('result.priceTrend', {
+          defaultValue: 'Price trend',
+        })}
         right={
           periods.length > 0 ? (
             <View
@@ -249,15 +263,19 @@ saved
         ) : (
           <Card>
             <Text style={styles.mutedText}>
-              {t('result.noPriceHistory')}
+              {t('result.noPriceHistory', {
+                defaultValue:
+                  'No price history available.',
+              })}
             </Text>
           </Card>
         )}
       </Section>
-
       {product.alternatives?.length > 0 && (
         <Section
-          title={t('result.alternatives')}
+          title={t('result.alternatives', {
+            defaultValue: 'Alternatives',
+          })}
         >
           <View style={{ gap: 8 }}>
             {product.alternatives.map((a) => (
@@ -266,7 +284,6 @@ saved
                   <Text style={styles.altName}>
                     {a.name}
                   </Text>
-
                   <View
                     style={{
                       flexDirection: 'row',
@@ -279,7 +296,6 @@ saved
                     >
                       {fmt(a.price)}
                     </Text>
-
                     {a.score != null && (
                       <Text
                         style={styles.altScore}
@@ -289,7 +305,6 @@ saved
                     )}
                   </View>
                 </View>
-
                 {a.note ? (
                   <Text style={styles.altNote}>
                     {a.note}
@@ -300,11 +315,12 @@ saved
           </View>
         </Section>
       )}
-
       {(product.reviews?.positive?.length > 0 ||
         product.reviews?.issues?.length > 0) && (
         <Section
-          title={t('result.userReviews')}
+          title={t('result.userReviews', {
+            defaultValue: 'User reviews',
+          })}
         >
           <Card>
             {product.reviews.positive.map((p) => (
@@ -317,7 +333,6 @@ saved
                   size={14}
                   color={COLORS.green}
                 />
-
                 <Text
                   style={styles.reviewText}
                 >
@@ -325,12 +340,10 @@ saved
                 </Text>
               </View>
             ))}
-
             {product.reviews.positive.length > 0 &&
               product.reviews.issues.length > 0 && (
                 <View style={styles.divider} />
               )}
-
             {product.reviews.issues.map((p) => (
               <View
                 key={p}
@@ -341,7 +354,6 @@ saved
                   size={14}
                   color={COLORS.yellow}
                 />
-
                 <Text
                   style={styles.reviewText}
                 >
@@ -349,7 +361,6 @@ saved
                 </Text>
               </View>
             ))}
-
             {product.reviews.insight ? (
               <View style={styles.insightBox}>
                 <Feather
@@ -358,7 +369,6 @@ saved
                   color={COLORS.brand}
                   style={{ marginTop: 2 }}
                 />
-
                 <Text
                   style={styles.insightText}
                 >
@@ -369,7 +379,6 @@ saved
                   >
                     TRUTH INSIGHT{'\n'}
                   </Text>
-
                   {product.reviews.insight}
                 </Text>
               </View>
@@ -377,10 +386,11 @@ saved
           </Card>
         </Section>
       )}
-
       {product.truthCheck?.length > 0 && (
         <Section
-          title={t('result.truthCheck')}
+          title={t('result.truthCheck', {
+            defaultValue: 'Truth check',
+          })}
         >
           <Card style={{ gap: 10 }}>
             {product.truthCheck.map((item, i) => (
@@ -402,7 +412,6 @@ saved
                   }
                   style={{ marginTop: 2 }}
                 />
-
                 <Text
                   style={styles.checkText}
                 >
@@ -413,10 +422,11 @@ saved
           </Card>
         </Section>
       )}
-
       {product.offers?.length > 0 && (
         <Section
-          title={t('result.bestOffers')}
+          title={t('result.bestOffers', {
+            defaultValue: 'Best offers',
+          })}
         >
           <View style={{ gap: 8 }}>
             {product.offers.map((o, i) => (
@@ -430,18 +440,20 @@ saved
                   >
                     {o.store}
                   </Text>
-
                   {o.shipping ? (
                     <Text
                       style={
                         styles.offerShipping
                       }
                     >
-                      {t('result.shipping')}: {o.shipping}
+                      {t('result.shipping', {
+                        defaultValue:
+                          'Shipping',
+                      })}
+                      : {o.shipping}
                     </Text>
                   ) : null}
                 </View>
-
                 <View
                   style={{
                     flexDirection: 'row',
@@ -456,7 +468,6 @@ saved
                       o.total ?? o.price
                     )}
                   </Text>
-
                   <TouchableOpacity
                     style={styles.offerBtn}
                   >
@@ -465,13 +476,14 @@ saved
                       size={12}
                       color={COLORS.bg}
                     />
-
                     <Text
                       style={
                         styles.offerBtnText
                       }
                     >
-                      {t('result.go')}
+                      {t('result.go', {
+                        defaultValue: 'Go',
+                      })}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -480,10 +492,11 @@ saved
           </View>
         </Section>
       )}
-
       {product.fairMax != null && (
         <Section
-          title={t('result.priceAlert')}
+          title={t('result.priceAlert', {
+            defaultValue: 'Price alert',
+          })}
         >
           <Card style={styles.alertRow}>
             <View style={styles.alertIcon}>
@@ -493,30 +506,34 @@ saved
                 color={COLORS.brand}
               />
             </View>
-
             <View style={{ flex: 1 }}>
               <Text
                 style={styles.alertTitle}
               >
                 {t('result.alertMeAt', {
                   price: product.fairMax,
+                  defaultValue:
+                    'Alert me at €{{price}}',
                 })}
               </Text>
-
               <Text
                 style={styles.alertSub}
               >
-                {t('result.alertDescription')}
+                {t('result.alertDescription', {
+                  defaultValue:
+                    'TRUTH will notify you when the price reaches this level.',
+                })}
               </Text>
             </View>
-
             <TouchableOpacity
               style={styles.alertBtn}
             >
               <Text
                 style={styles.alertBtnText}
               >
-                {t('result.activate')}
+                {t('result.activate', {
+                  defaultValue: 'Activate',
+                })}
               </Text>
             </TouchableOpacity>
           </Card>
@@ -524,7 +541,6 @@ saved
       )}
     </View>
   </ScrollView>
-
   <TouchableOpacity
     onPress={onOpenChat}
     style={styles.chatFab}
@@ -534,13 +550,13 @@ saved
       size={15}
       color={COLORS.bg}
     />
-
     <Text style={styles.chatFabText}>
-      {t('result.askTruth')}
+      {t('result.askTruth', {
+        defaultValue: 'Ask TRUTH',
+      })}
     </Text>
   </TouchableOpacity>
 </View>
-
 
 );
 }
@@ -553,8 +569,8 @@ marginTop: 4,
 },
 
 verdictPill: {
-flexDirection: 'row',
-alignItems: 'center',
+flexDirection: ‘row’,
+alignItems: ‘center’,
 gap: 6,
 paddingHorizontal: 16,
 paddingVertical: 7,
@@ -563,20 +579,20 @@ marginTop: 14,
 },
 
 verdictLabel: {
-fontWeight: '700',
+fontWeight: ‘700’,
 fontSize: 13,
 letterSpacing: 0.5,
 },
 
 statsRow: {
-flexDirection: 'row',
+flexDirection: ‘row’,
 gap: 8,
 marginTop: 22,
 },
 
 statCard: {
 flex: 1,
-alignItems: 'center',
+alignItems: ‘center’,
 paddingVertical: 12,
 paddingHorizontal: 4,
 },
@@ -587,7 +603,7 @@ color: COLORS.textMuted,
 },
 
 statValue: {
-fontWeight: '700',
+fontWeight: ‘700’,
 fontSize: 16,
 color: COLORS.textPrimary,
 marginTop: 4,
@@ -615,18 +631,18 @@ borderColor: COLORS.border,
 
 periodText: {
 fontSize: 10.5,
-fontWeight: '600',
+fontWeight: ‘600’,
 color: COLORS.textMuted,
 },
 
 altRow: {
-flexDirection: 'row',
-justifyContent: 'space-between',
-alignItems: 'flex-start',
+flexDirection: ‘row’,
+justifyContent: ‘space-between’,
+alignItems: ‘flex-start’,
 },
 
 altName: {
-fontWeight: '600',
+fontWeight: ‘600’,
 fontSize: 13.5,
 color: COLORS.textPrimary,
 flex: 1,
@@ -641,7 +657,7 @@ color: COLORS.textPrimary,
 altScore: {
 fontSize: 11,
 color: COLORS.brand,
-fontWeight: '700',
+fontWeight: ‘700’,
 },
 
 altNote: {
@@ -652,8 +668,8 @@ lineHeight: 17,
 },
 
 reviewRow: {
-flexDirection: 'row',
-alignItems: 'center',
+flexDirection: ‘row’,
+alignItems: ‘center’,
 gap: 8,
 marginBottom: 6,
 },
@@ -670,7 +686,7 @@ marginVertical: 8,
 },
 
 insightBox: {
-flexDirection: 'row',
+flexDirection: ‘row’,
 gap: 8,
 backgroundColor: COLORS.brandSoft,
 borderRadius: 10,
@@ -686,7 +702,7 @@ flex: 1,
 },
 
 checkRow: {
-flexDirection: 'row',
+flexDirection: ‘row’,
 gap: 8,
 },
 
@@ -698,13 +714,13 @@ flex: 1,
 },
 
 offerRow: {
-flexDirection: 'row',
-alignItems: 'center',
-justifyContent: 'space-between',
+flexDirection: ‘row’,
+alignItems: ‘center’,
+justifyContent: ‘space-between’,
 },
 
 offerStore: {
-fontWeight: '600',
+fontWeight: ‘600’,
 fontSize: 13.5,
 color: COLORS.textPrimary,
 },
@@ -716,14 +732,14 @@ marginTop: 2,
 },
 
 offerTotal: {
-fontWeight: '700',
+fontWeight: ‘700’,
 fontSize: 14,
 color: COLORS.textPrimary,
 },
 
 offerBtn: {
-flexDirection: 'row',
-alignItems: 'center',
+flexDirection: ‘row’,
+alignItems: ‘center’,
 gap: 4,
 backgroundColor: COLORS.brand,
 borderRadius: 9,
@@ -734,12 +750,12 @@ paddingVertical: 7,
 offerBtnText: {
 color: COLORS.bg,
 fontSize: 11.5,
-fontWeight: '700',
+fontWeight: ‘700’,
 },
 
 alertRow: {
-flexDirection: 'row',
-alignItems: 'center',
+flexDirection: ‘row’,
+alignItems: ‘center’,
 gap: 12,
 },
 
@@ -748,14 +764,14 @@ width: 34,
 height: 34,
 borderRadius: 9,
 backgroundColor: COLORS.brandSoft,
-alignItems: 'center',
-justifyContent: 'center',
+alignItems: ‘center’,
+justifyContent: ‘center’,
 },
 
 alertTitle: {
 fontSize: 12.5,
 color: COLORS.textPrimary,
-fontWeight: '600',
+fontWeight: ‘600’,
 },
 
 alertSub: {
@@ -775,19 +791,19 @@ paddingVertical: 7,
 alertBtnText: {
 color: COLORS.textPrimary,
 fontSize: 11.5,
-fontWeight: '600',
+fontWeight: ‘600’,
 },
 
 chatFab: {
-position: 'absolute',
+position: ‘absolute’,
 bottom: 20,
 right: 18,
 backgroundColor: COLORS.brand,
 borderRadius: 999,
 paddingHorizontal: 16,
 paddingVertical: 11,
-flexDirection: 'row',
-alignItems: 'center',
+flexDirection: ‘row’,
+alignItems: ‘center’,
 gap: 7,
 shadowColor: COLORS.brand,
 shadowOpacity: 0.35,
@@ -801,7 +817,12 @@ elevation: 6,
 
 chatFabText: {
 color: COLORS.bg,
-fontWeight: '700',
+fontWeight: ‘700’,
 fontSize: 12.5,
 },
 });
+
+**Questo codice è per `ProductDetailScreen.js`**, cioè la schermata che mostra il risultato dell'analisi del prodotto.
+Ho mantenuto la struttura e le funzioni che avevi già: punteggio, verdetto, prezzo, prezzo corretto, risparmio, motivazione, grafico, alternative, recensioni, Truth Check, offerte, avviso prezzo e chat.
+Però c'è **un'altra cosa importante**: tu hai detto che le chiavi compaiono anche nella **schermata di caricamento**. Questo file non controlla quella schermata.
+Quindi **non facciamo ancora la build**. Mandami adesso il file della schermata di caricamento (oppure il file dove compare la scritta durante l'analisi) e ti preparo anche quello completo. Così eliminiamo il problema alla radice, invece di correggere solo la schermata dei risultati.
