@@ -9,11 +9,15 @@ environment:
 node: 20
 scripts:
 - name: Install dependencies
-script: npm install
+script: |
+npm install
 - name: Generate Android project
-script: npx expo prebuild --platform android --clean
+script: |
+npx expo prebuild --platform android --clean
 - name: Build APK
-script: cd android && ./gradlew assembleRelease
+script: |
+cd android
+./gradlew assembleRelease
 artifacts:
 - android/app/build/outputs/apk/release/app-release.apk
 
@@ -25,11 +29,15 @@ environment:
 node: 20
 scripts:
 - name: Install dependencies
-script: npm install
+script: |
+npm install
 - name: Generate iOS project
-script: npx expo prebuild --platform ios --clean
+script: |
+npx expo prebuild --platform ios --clean
 - name: Install CocoaPods
-script: cd ios && pod install
+script: |
+cd ios
+pod install
 - name: Build iOS
 script: |
 xcodebuild
