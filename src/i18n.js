@@ -33,7 +33,6 @@ request('/api/analyze', {
 method: 'POST',
 body: JSON.stringify({
 query,
-language: i18n.language,
 }),
 });
 
@@ -56,6 +55,5 @@ method: 'POST',
 body: JSON.stringify({
 analysisId,
 question,
-language: i18n.language,
 }),
 });
