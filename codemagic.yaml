@@ -5,6 +5,8 @@ workflows:
     instance_type: mac_mini_m2
     environment:
       node: 20
+      groups:
+        - truth
     scripts:
       - name: Install dependencies
         script: npm install
@@ -21,6 +23,8 @@ workflows:
     instance_type: mac_mini_m2
     environment:
       node: 20
+      groups:
+        - truth
     scripts:
       - name: Install dependencies
         script: npm install
