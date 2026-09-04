@@ -1,8 +1,8 @@
 name: TRUTH Build
 
 workflows:
-android:
-name: TRUTH Android
+ android:
+   name: TRUTH Android
 instance_type: mac_mini_m2
 
 
@@ -33,16 +33,13 @@ artifacts:
 
 
 ios:
-name: TRUTH iOS
-instance_type: mac_mini_m2
-
-
-environment:
+  name: TRUTH iOS
+  instance_type: mac_mini_m2
+  environment:
   groups:
     - truth
   node: 20
-
-scripts:
+  scripts:
   - name: Install dependencies
     script: npm install
 
@@ -68,7 +65,5 @@ scripts:
       cp -R build/TRUTH.xcarchive/Products/Applications/TRUTH.app build/ipa/Payload/TRUTH.app
       cd build/ipa
       zip -r ../TRUTH.ipa Payload
-
-artifacts:
+  artifacts:
   - build/TRUTH.ipa
-
