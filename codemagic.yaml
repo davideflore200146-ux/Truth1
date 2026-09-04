@@ -25,7 +25,7 @@ workflows:
         script: npx expo prebuild --platform android --clean
 
       - name: Embed JavaScript bundle
-        script: npx expo export:embed --platform android
+        script: mkdir -p android/app/src/main/assets && npx expo export:embed --platform android --bundle-output android/app/src/main/assets/index.android.bundle
 
       - name: Build Debug APK
         script: cd android && ./gradlew assembleDebug
