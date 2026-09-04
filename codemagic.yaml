@@ -16,19 +16,19 @@ workflows:
 
       - name: Verify RevenueCat configuration
         script: |
-          if [ -z "$EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID" ] && [ -z "$REVENUECAT_ANDROID_KEY" ]; then
-            echo "ERRORE: chiave RevenueCat Android non configurata nel gruppo Codemagic 'truth'."
+          if [ -z "$EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID" ]; then
+            echo "ERRORE: EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID non configurata nel gruppo Codemagic 'truth'."
             exit 1
           fi
 
       - name: Generate Android project
         script: npx expo prebuild --platform android --clean
 
-      - name: Build APK
-        script: cd android && ./gradlew assembleRelease
+      - name: Build Debug APK
+        script: cd android && ./gradlew assembleDebug
 
     artifacts:
-      - android/app/build/outputs/apk/release/app-release.apk
+      - android/app/build/outputs/apk/debug/app-debug.apk
 
   ios:
     name: TRUTH iOS
@@ -45,8 +45,8 @@ workflows:
 
       - name: Verify RevenueCat configuration
         script: |
-          if [ -z "$EXPO_PUBLIC_REVENUECAT_API_KEY_IOS" ] && [ -z "$REVENUECAT_IOS_KEY" ]; then
-            echo "ERRORE: chiave RevenueCat iOS non configurata nel gruppo Codemagic 'truth'."
+          if [ -z "$EXPO_PUBLIC_REVENUECAT_API_KEY_IOS" ]; then
+            echo "ERRORE: EXPO_PUBLIC_REVENUECAT_API_KEY_IOS non configurata nel gruppo Codemagic 'truth'."
             exit 1
           fi
 
