@@ -6,10 +6,10 @@ import { useTranslation } from 'react-i18next';
 import { COLORS } from '../theme';
 
 const TABS = [
-{ id: 'home', icon: 'home', labelKey: 'navigation.home' },
-{ id: 'wishlist', icon: 'heart', labelKey: 'navigation.wishlist' },
-{ id: 'history', icon: 'clock', labelKey: 'navigation.history' },
-{ id: 'account', icon: 'user', labelKey: 'navigation.account' },
+{ id: 'home', icon: 'home', label: 'Home' },
+{ id: 'wishlist', icon: 'heart', label: 'Preferiti' },
+{ id: 'history', icon: 'clock', label: 'Cronologia' },
+{ id: 'account', icon: 'user', label: 'Account' },
 ];
 
 export default function BottomNav({ tab, setTab }) {
@@ -25,10 +25,11 @@ const active = tab === item.id;
         key={item.id}
         onPress={() => setTab(item.id)}
         style={styles.tabBtn}
+        activeOpacity={0.7}
       >
         <Feather
           name={item.icon}
-          size={19}
+          size={22}
           color={active ? COLORS.brand : COLORS.textMuted}
         />
 
@@ -36,13 +37,11 @@ const active = tab === item.id;
           style={[
             styles.tabLabel,
             {
-              color: active
-                ? COLORS.brand
-                : COLORS.textMuted,
+              color: active ? COLORS.brand : COLORS.textMuted,
             },
           ]}
         >
-          {t(item.labelKey)}
+          {item.label}
         </Text>
       </TouchableOpacity>
     );
@@ -55,6 +54,12 @@ const active = tab === item.id;
 
 const styles = StyleSheet.create({
 nav: {
+position: 'absolute',
+bottom: 0,
+left: 0,
+right: 0,
+zIndex: 100,
+elevation: 10,
 flexDirection: 'row',
 borderTopWidth: 1,
 borderTopColor: COLORS.border,
@@ -67,10 +72,13 @@ paddingHorizontal: 6,
 tabBtn: {
 flex: 1,
 alignItems: 'center',
+justifyContent: 'center',
+paddingVertical: 4,
 },
 
 tabLabel: {
 fontSize: 10,
 marginTop: 3,
+fontWeight: '500',
 },
 });
