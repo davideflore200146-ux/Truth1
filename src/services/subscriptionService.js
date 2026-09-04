@@ -2,210 +2,230 @@ import Purchases from 'react-native-purchases';
 import { Platform } from 'react-native';
 
 const REVENUECAT_API_KEY_IOS =
-  process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_IOS || '';
+process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_IOS ||
+process.env.REVENUECAT_IOS_KEY ||
+'';
 
 const REVENUECAT_API_KEY_ANDROID =
-  process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID || '';
+process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID ||
+process.env.REVENUECAT_ANDROID_KEY ||
+'';
 
 const ENTITLEMENT_ID = 'truth_plus';
 
 let initialized = false;
 
 function getApiKey() {
-  if (Platform.OS === 'ios') {
-    return REVENUECAT_API_KEY_IOS;
-  }
+if (Platform.OS === 'ios') {
+return REVENUECAT_API_KEY_IOS;
+}
 
-  if (Platform.OS === 'android') {
-    return REVENUECAT_API_KEY_ANDROID;
-  }
+if (Platform.OS === 'android') {
+return REVENUECAT_API_KEY_ANDROID;
+}
 
-  return '';
+return '';
 }
 
 export async function initializeSubscriptions() {
-  if (initialized) {
-    return true;
-  }
+if (initialized) {
+return true;
+}
 
-  const apiKey = getApiKey();
+const apiKey = getApiKey();
 
-  // --- DEBUG: da rimuovere una volta risolto il problema ---
-  console.log('[DEBUG] Platform:', Platform.OS);
-  console.log(
-    '[DEBUG] apiKey presente:',
-    Boolean(apiKey),
-    '- lunghezza:',
-    apiKey.length
-  );
-  // ----------------------------------------------------------
+if (!apiKey) {
+console.warn(
+'[subscriptionService] Chiave RevenueCat non configurata per questa piattaforma.'
+);
+return false;
+}
 
-  if (!apiKey) {
-    console.warn(
-      '[subscriptionService] Chiave RevenueCat non configurata per questa piattaforma.'
-    );
-    return false;
-  }
+try {
+Purchases.setLogLevel(Purchases.LOG_LEVEL.INFO);
 
-  try {
-    // --- DEBUG: log dettagliati di RevenueCat, da rimuovere dopo ---
-    Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
-    // -----------------------------------------------------------------
 
-    Purchases.configure({
-      apiKey,
-    });
+Purchases.configure({
+  apiKey,
+});
 
-    initialized = true;
+initialized = true;
 
-    console.log(
-      '[subscriptionService] RevenueCat inizializzato correttamente.'
-    );
+console.log(
+  '[subscriptionService] RevenueCat inizializzato correttamente.'
+);
 
-    return true;
-  } catch (error) {
-    console.error(
-      '[subscriptionService] Errore inizializzazione RevenueCat:',
-      error
-    );
+return true;
 
-    return false;
-  }
+
+} catch (error) {
+console.error(
+'[subscriptionService] Errore inizializzazione RevenueCat:',
+error
+);
+
+
+return false;
+
+
+}
 }
 
 async function ensureInitialized() {
-  if (initialized) {
-    return true;
-  }
+if (initialized) {
+return true;
+}
 
-  return initializeSubscriptions();
+return initializeSubscriptions();
 }
 
 export async function isPlusActive() {
-  const ready = await ensureInitialized();
+const ready = await ensureInitialized();
 
-  if (!ready) {
-    return false;
-  }
+if (!ready) {
+return false;
+}
 
-  try {
-    const customerInfo = await Purchases.getCustomerInfo();
+try {
+const customerInfo = await Purchases.getCustomerInfo();
 
-    return Boolean(
-      customerInfo?.entitlements?.active?.[ENTITLEMENT_ID]
-    );
-  } catch (error) {
-    console.error(
-      '[subscriptionService] Errore controllo stato abbonamento:',
-      error
-    );
 
-    return false;
-  }
+return Boolean(
+  customerInfo?.entitlements?.active?.[ENTITLEMENT_ID]
+);
+
+
+} catch (error) {
+console.error(
+'[subscriptionService] Errore controllo stato abbonamento:',
+error
+);
+
+
+return false;
+
+
+}
 }
 
 export async function getPlusOfferings() {
-  const ready = await ensureInitialized();
+const ready = await ensureInitialized();
 
-  if (!ready) {
-    return null;
-  }
+if (!ready) {
+return null;
+}
 
-  try {
-    const offerings = await Purchases.getOfferings();
+try {
+const offerings = await Purchases.getOfferings();
 
-    // --- DEBUG: stampa l'oggetto offerings completo, da rimuovere dopo ---
-    console.log(
-      '[DEBUG] offerings completo:',
-      JSON.stringify(offerings, null, 2)
-    );
-    // --------------------------------------------------------------------
 
-    // Usa l'offerta corrente di RevenueCat.
-    // Se non viene restituita come "current", utilizza
-    // direttamente l'offering "default" configurato per TRUTH Plus.
-    return (
-      offerings?.current ??
-      offerings?.all?.default ??
-      null
-    );
-  } catch (error) {
-    console.error(
-      '[subscriptionService] Errore recupero offerte:',
-      error
-    );
+const currentOffering =
+  offerings?.current ??
+  offerings?.all?.default ??
+  null;
 
-    return null;
-  }
+if (!currentOffering) {
+  console.warn(
+    '[subscriptionService] Nessun offering RevenueCat disponibile.'
+  );
+  return null;
+}
+
+return currentOffering;
+
+
+} catch (error) {
+console.error(
+'[subscriptionService] Errore recupero offerte:',
+error
+);
+
+
+return null;
+
+
+}
 }
 
 export async function purchasePlus(packageToPurchase) {
-  const ready = await ensureInitialized();
+const ready = await ensureInitialized();
 
-  if (!ready) {
-    throw new Error(
-      'RevenueCat non è configurato per questa build.'
-    );
-  }
+if (!ready) {
+throw new Error(
+'RevenueCat non è configurato per questa build.'
+);
+}
 
-  try {
-    let pkg = packageToPurchase;
+try {
+let pkg = packageToPurchase;
 
-    if (!pkg) {
-      const offering = await getPlusOfferings();
 
-      pkg =
-        offering?.monthly ??
-        offering?.availablePackages?.[0] ??
-        null;
-    }
+if (!pkg) {
+  const offering = await getPlusOfferings();
 
-    if (!pkg) {
-      throw new Error(
-        'Nessun pacchetto TRUTH PLUS disponibile al momento.'
-      );
-    }
+  pkg =
+    offering?.monthly ??
+    offering?.availablePackages?.[0] ??
+    null;
+}
 
-    const result = await Purchases.purchasePackage(pkg);
+if (!pkg) {
+  throw new Error(
+    'Nessun pacchetto TRUTH PLUS disponibile al momento.'
+  );
+}
 
-    const customerInfo = result?.customerInfo;
+const result = await Purchases.purchasePackage(pkg);
 
-    return Boolean(
-      customerInfo?.entitlements?.active?.[ENTITLEMENT_ID]
-    );
-  } catch (error) {
-    if (error?.userCancelled) {
-      return false;
-    }
+const customerInfo = result?.customerInfo;
 
-    console.error(
-      '[subscriptionService] Errore durante l’acquisto:',
-      error
-    );
+return Boolean(
+  customerInfo?.entitlements?.active?.[ENTITLEMENT_ID]
+);
 
-    throw error;
-  }
+
+} catch (error) {
+if (error?.userCancelled) {
+return false;
+}
+
+
+console.error(
+  '[subscriptionService] Errore durante l’acquisto:',
+  error
+);
+
+throw error;
+
+
+}
 }
 
 export async function restorePurchases() {
-  const ready = await ensureInitialized();
+const ready = await ensureInitialized();
 
-  if (!ready) {
-    return false;
-  }
+if (!ready) {
+return false;
+}
 
-  try {
-    const customerInfo = await Purchases.restorePurchases();
+try {
+const customerInfo = await Purchases.restorePurchases();
 
-    return Boolean(
-      customerInfo?.entitlements?.active?.[ENTITLEMENT_ID]
-    );
-  } catch (error) {
-    console.error(
-      '[subscriptionService] Errore ripristino acquisti:',
-      error
-    );
 
-    return false;
-  }
+return Boolean(
+  customerInfo?.entitlements?.active?.[ENTITLEMENT_ID]
+);
+
+
+} catch (error) {
+console.error(
+'[subscriptionService] Errore ripristino acquisti:',
+error
+);
+
+
+return false;
+
+
+}
 }
