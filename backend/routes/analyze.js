@@ -1,471 +1,112 @@
+// backend/routes/analyze.js
+//
+// Endpoint POST /api/analyze
+// Flusso: query utente -> Tavily (ricerca) -> Groq (analisi) -> risposta strutturata
+//
+// Adatta gli import in cima (router, eventuale auth/middleware) al resto del
+// tuo server.js se necessario: qui è un modulo Express autonomo.
+
 const express = require('express');
-
 const router = express.Router();
+const { searchTavily, prepareResultsForGroq } = require('../services/tavily');
 
-const {
-  callGemini,
-  extractText,
-  parseJsonFromText,
-} = require('../services/gemini');
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_MODEL = 'openai/gpt-oss-120b';
 
-const {
-  searchTavily,
-  formatTavilyResults,
-} = require('../services/tavily');
-
-const {
-  ANALYSIS_SYSTEM_PROMPT,
-} = require('../services/prompts');
-
-const db = require('../db');
-
-const SUPPORTED_LANGUAGES = {
-  it: 'Italian',
-  en: 'English',
-  sc: 'Sardinian',
-  es: 'Spanish',
-  fr: 'French',
-  de: 'German',
-  pt: 'Portuguese',
-};
-
-function normalizeLanguage(language) {
-  if (!language || typeof language !== 'string') {
-    return 'it';
+// Mantiene il nome storico callGemini per non dover cambiare il resto del
+// progetto che già lo importa/chiama così — internamente ora chiama Groq.
+async function callGemini(query, searchResultsText) {
+  if (!GROQ_API_KEY) {
+    throw new Error('GROQ_API_KEY mancante nelle variabili d\'ambiente');
   }
 
-  const normalized =
-    language
-      .toLowerCase()
-      .split('-')[0]
-      .trim();
+  const systemPrompt = `Sei un assistente che analizza un prodotto SOLO in base ai risultati di ricerca forniti.
 
-  return SUPPORTED_LANGUAGES[normalized]
-    ? normalized
-    : 'it';
-}
+REGOLA FONDAMENTALE SUL PRODOTTO:
+Analizza SOLO il prodotto cercato esattamente come scritto dall'utente: "${query}".
+Se i risultati di ricerca menzionano un modello diverso (es. versione precedente o
+successiva, variante diversa), NON sostituirlo e NON "avvicinarlo" a un modello che
+conosci meglio. Se i dati trovati sembrano riferirsi a un modello diverso da quello
+cercato, segnalalo esplicitamente nella risposta invece di correggerlo silenziosamente.
 
-function normalize(data, query) {
-  const safe =
-    data && typeof data === 'object'
-      ? data
-      : {};
+Rispondi SOLO in formato JSON valido, senza testo aggiuntivo, seguendo questa struttura:
+{
+  "productName": "string",
+  "truthScore": number (0-100),
+  "verdict": "compra" | "aspetta" | "non_conviene",
+  "currentPrice": "string",
+  "fairPrice": "string",
+  "explanation": "string (max 5 righe)",
+  "alternatives": ["string", "string", "string"],
+  "warning": "string o null (es. se i dati sembrano riferirsi a un modello diverso)"
+}`;
 
-  return {
-    id:
-      safe.id ||
-      String(query || 'product')
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-'),
+  const userPrompt = `Prodotto cercato: "${query}"\n\nRisultati di ricerca:\n\n${searchResultsText}`;
 
-    name:
-      safe.name ||
-      query ||
-      'Prodotto',
-
-    brand:
-      typeof safe.brand === 'string'
-        ? safe.brand
-        : '',
-
-    category:
-      typeof safe.category === 'string'
-        ? safe.category
-        : '',
-
-    score:
-      typeof safe.score === 'number'
-        ? Math.max(0, Math.min(100, safe.score))
-        : 0,
-
-    verdict:
-      ['buy', 'wait', 'avoid'].includes(
-        safe.verdict
-      )
-        ? safe.verdict
-        : 'wait',
-
-    currentPrice:
-      typeof safe.currentPrice === 'number'
-        ? safe.currentPrice
-        : null,
-
-    fairMin:
-      typeof safe.fairMin === 'number'
-        ? safe.fairMin
-        : null,
-
-    fairMax:
-      typeof safe.fairMax === 'number'
-        ? safe.fairMax
-        : null,
-
-    savings:
-      typeof safe.savings === 'number'
-        ? safe.savings
-        : null,
-
-    reasoning:
-      typeof safe.reasoning === 'string'
-        ? safe.reasoning
-        : '',
-
-    alternatives:
-      Array.isArray(safe.alternatives)
-        ? safe.alternatives.slice(0, 3)
-        : [],
-
-    reviews: {
-      positive:
-        Array.isArray(safe.reviews?.positive)
-          ? safe.reviews.positive.slice(0, 3)
-          : [],
-
-      issues:
-        Array.isArray(safe.reviews?.issues)
-          ? safe.reviews.issues.slice(0, 3)
-          : [],
-
-      insight:
-        typeof safe.reviews?.insight === 'string'
-          ? safe.reviews.insight
-          : '',
+  const response = await fetch(GROQ_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${GROQ_API_KEY}`,
     },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.3,
+      max_tokens: 1200,
+      response_format: { type: 'json_object' },
+    }),
+  });
 
-    truthCheck:
-      Array.isArray(safe.truthCheck)
-        ? safe.truthCheck.slice(0, 4)
-        : [],
-
-    offers:
-      Array.isArray(safe.offers)
-        ? safe.offers.slice(0, 4)
-        : [],
-
-    ...(safe.priceHistory &&
-    typeof safe.priceHistory === 'object'
-      ? {
-          priceHistory:
-            safe.priceHistory,
-        }
-      : {}),
-  };
-}
-
-function buildSearchQuery(query) {
-  const cleanQuery =
-    query.trim();
-
-  // Le virgolette aiutano a mantenere
-  // l'identità esatta del modello.
-  return [
-    `"${cleanQuery}"`,
-    'prezzo',
-    'disponibilità',
-    'recensioni',
-    'offerte',
-    'specifiche',
-    'data uscita',
-    'ufficiale',
-  ].join(' ');
-}
-
-function buildUserText({
-  query,
-  currentDate,
-  languageName,
-  selectedLanguage,
-  searchContext,
-}) {
-  const baseInstructions = `Analizza questo prodotto/offerta esatto:
-
-${query}
-
-DATA CORRENTE REALE:
-${currentDate}
-
-LINGUA RICHIESTA DALL'UTENTE:
-${languageName} (${selectedLanguage})
-
-ISTRUZIONI CRITICHE:
-
-1. IDENTITÀ ESATTA
-Il prodotto richiesto è esattamente:
-"${query}"
-
-Non sostituirlo con:
-- una generazione precedente;
-- una generazione successiva;
-- una variante Pro;
-- una variante Pro Max;
-- una variante Plus;
-- una variante Ultra;
-- un modello con capacità diversa;
-- un prodotto semplicemente simile.
-
-Se trovi informazioni su un modello simile ma diverso, NON usarle come se fossero informazioni sul prodotto richiesto.
-
-2. DATA
-La data corrente reale è:
-${currentDate}
-
-Usa questa data per stabilire se il prodotto:
-- è stato annunciato;
-- è stato presentato;
-- è stato rilasciato;
-- è disponibile;
-- è esaurito;
-- è fuori produzione.
-
-Non dichiarare che un prodotto non esiste o non è ancora uscito soltanto perché una fonte non contiene informazioni sufficienti.
-
-3. FONTI
-Dai priorità alle fonti ufficiali del produttore per:
-- identità;
-- data di presentazione;
-- data di uscita;
-- specifiche;
-- prezzo ufficiale.
-
-Per prezzi e offerte usa anche rivenditori affidabili.
-
-4. LINGUA
-Tutti i testi generati devono essere esclusivamente nella lingua richiesta.
-
-Non usare italiano se la lingua richiesta è diversa.
-
-Mantieni invariati:
-- le chiavi JSON;
-- "buy";
-- "wait";
-- "avoid".
-
-`;
-
-  if (!searchContext) {
-    return `${baseInstructions}
-
-Non sono stati ottenuti risultati web sufficienti.
-
-Non inventare dati.
-Se un dato non è verificabile, usa null, array vuoto o stringa vuota come previsto dallo schema.
-`;
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Groq API ha risposto ${response.status}: ${errText}`);
   }
 
-  return `${baseInstructions}
+  const data = await response.json();
+  const rawContent = data.choices?.[0]?.message?.content;
 
-RISULTATI DI RICERCA WEB AGGIORNATI:
+  if (!rawContent) {
+    throw new Error('Groq non ha restituito contenuto valido');
+  }
 
-${searchContext}
-
-VALUTAZIONE DELLE FONTI:
-
-I risultati sopra possono contenere:
-- fonti ufficiali;
-- rivenditori;
-- recensioni;
-- pagine obsolete;
-- risultati relativi a modelli simili.
-
-Devi confrontarli e determinare quale fonte riguarda realmente il prodotto richiesto.
-
-Se una fonte parla di una generazione diversa, NON usarla per identificare il prodotto richiesto.
-
-Se una fonte ufficiale conferma l'esistenza, la presentazione o la disponibilità del prodotto richiesto, questa informazione ha priorità sulla conoscenza interna del modello.
-`;
+  try {
+    return JSON.parse(rawContent);
+  } catch (e) {
+    throw new Error(`Impossibile parsare la risposta JSON di Groq: ${e.message}`);
+  }
 }
 
-router.post('/', async (req, res) => {
+router.post('/analyze', async (req, res) => {
+  const { query } = req.body;
+
+  if (!query || typeof query !== 'string' || !query.trim()) {
+    return res.status(400).json({ error: 'common.missingQuery' });
+  }
+
   try {
-    const {
-      query,
-      language,
-    } = req.body || {};
+    // 1. Ricerca su Tavily (copertura ampia: fino a 10 risultati)
+    const tavilyResults = await searchTavily(query, 10);
 
-    if (
-      !query ||
-      typeof query !== 'string' ||
-      !query.trim()
-    ) {
-      return res.status(400).json({
-        error: 'Query mancante',
-      });
+    if (!tavilyResults.length) {
+      return res.status(404).json({ error: 'common.noResultsFound' });
     }
 
-    const cleanQuery =
-      query.trim();
+    // 2. Riduzione dati: solo i migliori 5 risultati, ognuno troncato
+    //    -> questo è ciò che evita il 413 su Groq
+    const searchResultsText = prepareResultsForGroq(tavilyResults, 5, 900);
 
-    const selectedLanguage =
-      normalizeLanguage(language);
+    // 3. Analisi con Groq (funzione ancora chiamata callGemini per compatibilità)
+    const analysis = await callGemini(query, searchResultsText);
 
-    const languageName =
-      SUPPORTED_LANGUAGES[
-        selectedLanguage
-      ];
-
-    const currentDate =
-      new Date()
-        .toISOString()
-        .slice(0, 10);
-
-    let searchContext = '';
-
-    try {
-      const searchQuery =
-        buildSearchQuery(
-          cleanQuery
-        );
-
-      const tavilyData =
-        await searchTavily(
-          searchQuery,
-          {
-            searchDepth: 'advanced',
-            maxResults: 10,
-          }
-        );
-
-      searchContext =
-        formatTavilyResults(
-          tavilyData
-        );
-
-      console.log(
-        `[TRUTH] Ricerca completata per "${cleanQuery}". Fonti: ${
-          Array.isArray(tavilyData?.results)
-            ? tavilyData.results.length
-            : 0
-        }`
-      );
-    } catch (searchError) {
-      console.error(
-        '[TRUTH] Errore ricerca Tavily:',
-        searchError
-      );
-    }
-
-    const userText =
-      buildUserText({
-        query: cleanQuery,
-        currentDate,
-        languageName,
-        selectedLanguage,
-        searchContext,
-      });
-
-    const localizedSystemPrompt =
-      `${ANALYSIS_SYSTEM_PROMPT}
-
-DATA CORRENTE REALE:
-${currentDate}
-
-Questa data è il riferimento temporale assoluto dell'analisi.
-
-LINGUA OBBLIGATORIA:
-${languageName} (${selectedLanguage})
-
-REGOLA IDENTITÀ PRODOTTO:
-
-Quando l'utente specifica un modello preciso, devi analizzare ESATTAMENTE quel modello.
-
-Non sostituire mai automaticamente:
-- una generazione con un'altra;
-- un modello con il suo predecessore;
-- un modello con il suo successore;
-- una variante con un'altra variante;
-- un prodotto specifico con la famiglia generica.
-
-Se le fonti web mostrano informazioni contrastanti, devi risolvere il conflitto usando:
-1. fonte ufficiale del produttore;
-2. fonte più recente;
-3. rivenditore affidabile;
-4. altre fonti attendibili.
-
-REGOLA DATA:
-
-Non usare la conoscenza interna del modello come unica fonte per stabilire se un prodotto recente esiste, è stato presentato o è disponibile.
-
-Usa prima i risultati web forniti.
-
-Se una fonte ufficiale conferma che il prodotto è stato presentato o commercializzato, considera questa informazione prioritaria.
-
-REGOLA PREZZO:
-
-Non attribuire al prodotto richiesto il prezzo di una variante diversa.
-
-REGOLA INFORMAZIONI NON VERIFICATE:
-
-Se un'informazione non è verificabile:
-- non inventarla;
-- usa null;
-- usa array vuoto;
-- usa stringa vuota;
-- oppure spiega brevemente l'incertezza nel reasoning.
-
-REGOLA LINGUA:
-
-Tutti i testi generati devono essere esclusivamente nella lingua richiesta.
-
-Non tradurre:
-- le chiavi JSON;
-- "buy";
-- "wait";
-- "avoid".
-
-Restituisci esclusivamente JSON valido.
-Nessun testo prima o dopo il JSON.`;
-
-    const response =
-      await callGemini({
-        system:
-          localizedSystemPrompt,
-        userText,
-        useSearch: false,
-      });
-
-    const text =
-      extractText(response);
-
-    const parsed =
-      parseJsonFromText(text);
-
-    const analysis =
-      normalize(
-        parsed,
-        cleanQuery
-      );
-
-    try {
-      if (
-        db &&
-        typeof db.saveAnalysis ===
-          'function'
-      ) {
-        await db.saveAnalysis(
-          analysis
-        );
-      }
-    } catch (dbError) {
-      console.error(
-        '[TRUTH] Errore salvataggio analisi:',
-        dbError
-      );
-    }
-
-    return res.json(
-      analysis
-    );
-  } catch (error) {
-    console.error(
-      '[TRUTH] Errore analisi:',
-      error
-    );
-
-    return res.status(500).json({
-      error:
-        error?.message ||
-        'Errore durante l’analisi',
-    });
+    return res.json(analysis);
+  } catch (err) {
+    console.error('Errore /api/analyze:', err.message);
+    return res.status(500).json({ error: 'common.analysisFailed', detail: err.message });
   }
 });
 
