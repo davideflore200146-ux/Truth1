@@ -24,6 +24,9 @@ workflows:
       - name: Generate Android project
         script: npx expo prebuild --platform android --clean
 
+      - name: Embed JavaScript bundle
+        script: npx expo export:embed --platform android
+
       - name: Build Debug APK
         script: cd android && ./gradlew assembleDebug
 
