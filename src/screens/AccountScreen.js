@@ -7,7 +7,6 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
 
 import { COLORS } from '../theme';
 import { Card, TopBar } from '../components/ui';
@@ -164,8 +163,6 @@ const ACCOUNT_TRANSLATIONS = {
 };
 
 export default function AccountScreen() {
-  const { t } = useTranslation();
-
   const [plusActive, setPlusActive] = useState(false);
   const [purchaseLoading, setPurchaseLoading] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState(
@@ -182,16 +179,6 @@ export default function AccountScreen() {
       ACCOUNT_TRANSLATIONS[language]?.[key] ||
       fallback
     );
-  };
-
-  const translate = (key, fallback) => {
-    const value = t(key);
-
-    if (!value || value === key) {
-      return fallback;
-    }
-
-    return value;
   };
 
   useEffect(() => {
@@ -286,18 +273,18 @@ export default function AccountScreen() {
     setSelectedLanguage(language);
   };
 
-  const currentLanguage =
-    i18n.language && ACCOUNT_TRANSLATIONS[i18n.language]
-      ? i18n.language
-      : 'it';
-
   return (
     <View style={{ flex: 1 }}>
       <TopBar
         title={getAccountText('title', 'Account')}
       />
 
-      <View style={{ paddingHorizontal: 18, paddingTop: 6 }}>
+      <View
+        style={{
+          paddingHorizontal: 18,
+          paddingTop: 6,
+        }}
+      >
         <Card style={styles.languageCard}>
           <Text style={styles.sectionTitle}>
             {getAccountText('language', 'Lingua')}
@@ -354,7 +341,10 @@ export default function AccountScreen() {
 
             {plusActive ? (
               <Text style={styles.activeText}>
-                {getAccountText('active', 'Attivo')}
+                {getAccountText(
+                  'active',
+                  'Attivo'
+                )}
               </Text>
             ) : (
               <Text style={styles.plusPrice}>
