@@ -1,100 +1,71 @@
-// Wrapper per l'API di ricerca Tavily.
-// La ricerca viene ottimizzata per prodotti, prezzi,
-// disponibilità e modelli recenti.
+// backend/services/tavily.js
+//
+// Servizio di ricerca web tramite Tavily.
+// Obiettivo: restituire risultati "leggeri" (snippet troncati) così che il
+// payload passato a Groq non superi mai il limite di request size (causa
+// dell'errore 413 "Request Body Too Large").
 
-async function searchTavily(query, options = {}) {
-  const apiKey = process.env.TAVILY_API_KEY;
+const TAVILY_API_URL = 'https://api.tavily.com/search';
+const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 
-  if (!apiKey || apiKey.includes('xxxxxxxx')) {
-    throw new Error(
-      'TAVILY_API_KEY non configurata. Registrati gratis su tavily.com e inserisci la tua chiave.'
-    );
+/**
+ * Esegue una ricerca su Tavily per la query indicata.
+ * NON richiede raw_content (pagina intera) — solo lo snippet breve che
+ * Tavily genera già, molto più corto e sufficiente per l'analisi.
+ *
+ * @param {string} query - query di ricerca (es. "iPhone 17 prezzo recensioni")
+ * @param {number} maxResults - quanti risultati chiedere a Tavily (copertura ricerca)
+ * @returns {Promise<Array<{title:string, url:string, content:string, score:number}>>}
+ */
+async function searchTavily(query, maxResults = 10) {
+  if (!TAVILY_API_KEY) {
+    throw new Error('TAVILY_API_KEY mancante nelle variabili d\'ambiente');
   }
 
-  const cleanQuery =
-    typeof query === 'string'
-      ? query.trim()
-      : '';
+  const response = await fetch(TAVILY_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      api_key: TAVILY_API_KEY,
+      query,
+      search_depth: 'advanced', // snippet più informativi, ma restano brevi
+      include_raw_content: false, // IMPORTANTE: niente pagina intera
+      include_answer: false,
+      max_results: maxResults,
+    }),
+  });
 
-  if (!cleanQuery) {
-    throw new Error(
-      'Query Tavily mancante.'
-    );
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Tavily API error ${response.status}: ${errText}`);
   }
 
-  const res = await fetch(
-    'https://api.tavily.com/search',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        api_key: apiKey,
-        query: cleanQuery,
-
-        // Advanced è più adatto quando dobbiamo
-        // identificare esattamente un modello recente.
-        search_depth:
-          options.searchDepth || 'advanced',
-
-        // Più fonti = meno probabilità che Gemini
-        // confonda un modello con la generazione precedente.
-        max_results:
-          options.maxResults || 10,
-
-        include_answer: false,
-
-        // Manteniamo risultati recenti e pertinenti.
-        topic: 'general',
-
-        // Non includiamo immagini: TRUTH attualmente
-        // utilizza testo e dati web per questa analisi.
-        include_images: false,
-      }),
-    }
-  );
-
-  if (!res.ok) {
-    const errText = await res.text();
-
-    throw new Error(
-      `Tavily API ha risposto ${res.status}: ${errText}`
-    );
-  }
-
-  const data = await res.json();
-
-  return data;
+  const data = await response.json();
+  return data.results || [];
 }
 
-function formatTavilyResults(data) {
-  const results = Array.isArray(data?.results)
-    ? data.results
-    : [];
-
-  return results
-    .map((result, index) => {
-      const title =
-        result?.title || 'Fonte senza titolo';
-
-      const url =
-        result?.url || '';
-
-      const content =
-        result?.content || '';
-
-      return [
-        `[Fonte ${index + 1}]`,
-        `Titolo: ${title}`,
-        `URL: ${url}`,
-        `Contenuto: ${content}`,
-      ].join('\n');
+/**
+ * Prepara i risultati Tavily per essere inviati a Groq:
+ * - tiene solo i migliori N risultati (per rilevanza, già ordinati da Tavily)
+ * - tronca ogni snippet a un tetto fisso di caratteri
+ * - produce un testo compatto, senza campi inutili (score, favicon, images...)
+ *
+ * @param {Array} tavilyResults - risultati grezzi da searchTavily()
+ * @param {number} maxResults - quanti risultati usare per l'analisi (default 5)
+ * @param {number} maxCharsPerResult - tetto caratteri per singolo risultato (default 900)
+ * @returns {string} testo pronto da inserire nel prompt per Groq
+ */
+function prepareResultsForGroq(tavilyResults, maxResults = 5, maxCharsPerResult = 900) {
+  return tavilyResults
+    .slice(0, maxResults)
+    .map((r, i) => {
+      const snippet = (r.content || '').slice(0, maxCharsPerResult).trim();
+      return `[${i + 1}] ${r.title}\nURL: ${r.url}\n${snippet}`;
     })
     .join('\n\n');
 }
 
 module.exports = {
   searchTavily,
-  formatTavilyResults,
+  prepareResultsForGroq,
 };
