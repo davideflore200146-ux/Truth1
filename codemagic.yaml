@@ -1,69 +1,70 @@
 name: TRUTH Build
 
 workflows:
- android:
-   name: TRUTH Android
-instance_type: mac_mini_m2
+  android:
+    name: TRUTH Android
+    instance_type: mac_mini_m2
 
+    environment:
+      groups:
+        - truth
+      node: 20
 
-environment:
-  groups:
-    - truth
-  node: 20
+    scripts:
+      - name: Install dependencies
+        script: npm install
 
-scripts:
-  - name: Install dependencies
-    script: npm install
+      - name: Verify RevenueCat configuration
+        script: |
+          if [ -z "$EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID" ] && [ -z "$REVENUECAT_ANDROID_KEY" ]; then
+            echo "ERRORE: chiave RevenueCat Android non configurata nel gruppo Codemagic 'truth'."
+            exit 1
+          fi
 
-  - name: Verify RevenueCat configuration
-    script: |
-      if [ -z "$EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID" ] && [ -z "$REVENUECAT_ANDROID_KEY" ]; then
-        echo "ERRORE: chiave RevenueCat Android non configurata nel gruppo Codemagic 'truth'."
-        exit 1
-      fi
+      - name: Generate Android project
+        script: npx expo prebuild --platform android --clean
 
-  - name: Generate Android project
-    script: npx expo prebuild --platform android --clean
+      - name: Build APK
+        script: cd android && ./gradlew assembleRelease
 
-  - name: Build APK
-    script: cd android && ./gradlew assembleRelease
+    artifacts:
+      - android/app/build/outputs/apk/release/app-release.apk
 
-artifacts:
-  - android/app/build/outputs/apk/release/app-release.apk
+  ios:
+    name: TRUTH iOS
+    instance_type: mac_mini_m2
 
+    environment:
+      groups:
+        - truth
+      node: 20
 
-ios:
-  name: TRUTH iOS
-  instance_type: mac_mini_m2
-  environment:
-  groups:
-    - truth
-  node: 20
-  scripts:
-  - name: Install dependencies
-    script: npm install
+    scripts:
+      - name: Install dependencies
+        script: npm install
 
-  - name: Verify RevenueCat configuration
-    script: |
-      if [ -z "$EXPO_PUBLIC_REVENUECAT_API_KEY_IOS" ] && [ -z "$REVENUECAT_IOS_KEY" ]; then
-        echo "ERRORE: chiave RevenueCat iOS non configurata nel gruppo Codemagic 'truth'."
-        exit 1
-      fi
+      - name: Verify RevenueCat configuration
+        script: |
+          if [ -z "$EXPO_PUBLIC_REVENUECAT_API_KEY_IOS" ] && [ -z "$REVENUECAT_IOS_KEY" ]; then
+            echo "ERRORE: chiave RevenueCat iOS non configurata nel gruppo Codemagic 'truth'."
+            exit 1
+          fi
 
-  - name: Generate iOS project
-    script: npx expo prebuild --platform ios --clean
+      - name: Generate iOS project
+        script: npx expo prebuild --platform ios --clean
 
-  - name: Install CocoaPods
-    script: cd ios && pod install
+      - name: Install CocoaPods
+        script: cd ios && pod install
 
-  - name: Build iOS
-    script: xcodebuild -workspace ios/TRUTH.xcworkspace -scheme TRUTH -configuration Release -sdk iphoneos -archivePath build/TRUTH.xcarchive archive CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+      - name: Build iOS
+        script: xcodebuild -workspace ios/TRUTH.xcworkspace -scheme TRUTH -configuration Release -sdk iphoneos -archivePath build/TRUTH.xcarchive archive CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
 
-  - name: Create IPA
-    script: |
-      mkdir -p build/ipa/Payload
-      cp -R build/TRUTH.xcarchive/Products/Applications/TRUTH.app build/ipa/Payload/TRUTH.app
-      cd build/ipa
-      zip -r ../TRUTH.ipa Payload
-  artifacts:
-  - build/TRUTH.ipa
+      - name: Create IPA
+        script: |
+          mkdir -p build/ipa/Payload
+          cp -R build/TRUTH.xcarchive/Products/Applications/TRUTH.app build/ipa/Payload/TRUTH.app
+          cd build/ipa
+          zip -r ../TRUTH.ipa Payload
+
+    artifacts:
+      - build/TRUTH.ipa
