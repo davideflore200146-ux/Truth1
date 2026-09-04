@@ -10,6 +10,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo/vector-icons": "15.0.3",
     "expo": "~54.0.0",
     "expo-camera": "~17.0.10",
     "expo-image-picker": "~17.0.11",
@@ -22,6 +23,9 @@
     "react-native-purchases": "^10.8.1",
     "react-native-purchases-ui": "^10.8.1",
     "react-native-svg": "15.12.1"
+  },
+  "overrides": {
+    "expo-font": "14.0.12"
   },
   "devDependencies": {
     "babel-preset-expo": "~54.0.10"
