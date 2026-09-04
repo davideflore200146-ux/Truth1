@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 
 const REVENUECAT_API_KEY_IOS =
   process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_IOS || '';
+
 const REVENUECAT_API_KEY_ANDROID =
   process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID || '';
 
@@ -14,9 +15,11 @@ function getApiKey() {
   if (Platform.OS === 'ios') {
     return REVENUECAT_API_KEY_IOS;
   }
+
   if (Platform.OS === 'android') {
     return REVENUECAT_API_KEY_ANDROID;
   }
+
   return '';
 }
 
@@ -52,16 +55,20 @@ export async function initializeSubscriptions() {
     Purchases.configure({
       apiKey,
     });
+
     initialized = true;
+
     console.log(
       '[subscriptionService] RevenueCat inizializzato correttamente.'
     );
+
     return true;
   } catch (error) {
     console.error(
       '[subscriptionService] Errore inizializzazione RevenueCat:',
       error
     );
+
     return false;
   }
 }
@@ -70,16 +77,20 @@ async function ensureInitialized() {
   if (initialized) {
     return true;
   }
+
   return initializeSubscriptions();
 }
 
 export async function isPlusActive() {
   const ready = await ensureInitialized();
+
   if (!ready) {
     return false;
   }
+
   try {
     const customerInfo = await Purchases.getCustomerInfo();
+
     return Boolean(
       customerInfo?.entitlements?.active?.[ENTITLEMENT_ID]
     );
@@ -88,55 +99,77 @@ export async function isPlusActive() {
       '[subscriptionService] Errore controllo stato abbonamento:',
       error
     );
+
     return false;
   }
 }
 
 export async function getPlusOfferings() {
   const ready = await ensureInitialized();
+
   if (!ready) {
     return null;
   }
+
   try {
     const offerings = await Purchases.getOfferings();
 
     // --- DEBUG: stampa l'oggetto offerings completo, da rimuovere dopo ---
-    console.log('[DEBUG] offerings completo:', JSON.stringify(offerings, null, 2));
-    // -------------------------------------------------------------------------
+    console.log(
+      '[DEBUG] offerings completo:',
+      JSON.stringify(offerings, null, 2)
+    );
+    // --------------------------------------------------------------------
 
-    return offerings?.current ?? null;
+    // Usa l'offerta corrente di RevenueCat.
+    // Se non viene restituita come "current", utilizza
+    // direttamente l'offering "default" configurato per TRUTH Plus.
+    return (
+      offerings?.current ??
+      offerings?.all?.default ??
+      null
+    );
   } catch (error) {
     console.error(
       '[subscriptionService] Errore recupero offerte:',
       error
     );
+
     return null;
   }
 }
 
 export async function purchasePlus(packageToPurchase) {
   const ready = await ensureInitialized();
+
   if (!ready) {
     throw new Error(
       'RevenueCat non è configurato per questa build.'
     );
   }
+
   try {
     let pkg = packageToPurchase;
+
     if (!pkg) {
       const offering = await getPlusOfferings();
+
       pkg =
         offering?.monthly ??
         offering?.availablePackages?.[0] ??
         null;
     }
+
     if (!pkg) {
       throw new Error(
         'Nessun pacchetto TRUTH PLUS disponibile al momento.'
       );
     }
+
     const result = await Purchases.purchasePackage(pkg);
+
     const customerInfo = result?.customerInfo;
+
     return Boolean(
       customerInfo?.entitlements?.active?.[ENTITLEMENT_ID]
     );
@@ -144,21 +177,26 @@ export async function purchasePlus(packageToPurchase) {
     if (error?.userCancelled) {
       return false;
     }
+
     console.error(
-      '[subscriptionService] Errore durante l\u2019acquisto:',
+      '[subscriptionService] Errore durante l’acquisto:',
       error
     );
+
     throw error;
   }
 }
 
 export async function restorePurchases() {
   const ready = await ensureInitialized();
+
   if (!ready) {
     return false;
   }
+
   try {
     const customerInfo = await Purchases.restorePurchases();
+
     return Boolean(
       customerInfo?.entitlements?.active?.[ENTITLEMENT_ID]
     );
@@ -167,6 +205,7 @@ export async function restorePurchases() {
       '[subscriptionService] Errore ripristino acquisti:',
       error
     );
+
     return false;
   }
 }
