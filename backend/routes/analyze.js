@@ -1,11 +1,11 @@
 // backend/routes/analyze.js
 //
 // Endpoint POST /api/analyze
-// Flusso: query utente -> (se è un link corto, risolvi il redirect) -> Tavily (ricerca) -> Groq (analisi) -> risposta + storico prezzi salvato in db.json
+// Flusso: query utente -> (se è un link corto, risolvi il redirect) -> Tavily (ricerca multi-negozio) -> Groq (analisi) -> risposta + storico prezzi salvato in db.json
 
 const express = require('express');
 const router = express.Router();
-const { searchTavily, prepareResultsForGroq } = require('../services/tavily');
+const { searchTavilyMultiStore, prepareResultsForGroq } = require('../services/tavily');
 const { ANALYSIS_SYSTEM_PROMPT } = require('../services/prompts');
 const db = require('../db');
 
@@ -44,7 +44,7 @@ function isUrl(text) {
 }
 
 // Mantiene il nome storico callGemini per compatibilità col resto del progetto.
-// Ora usa lo schema completo definito in services/prompts.js (offers, reviews,
+// Usa lo schema completo definito in services/prompts.js (offers, reviews,
 // truthCheck...), lo stesso che il frontend si aspetta.
 async function callGemini(query, searchResultsText, languageCode = 'it') {
   if (!GROQ_API_KEY) {
@@ -131,21 +131,28 @@ router.post('/analyze', async (req, res) => {
   }
 
   try {
+    // 0. Se l'utente ha inviato un link corto (amzn.eu, amzn.to, ecc.),
+    // risolvi il redirect per ottenere l'URL vero con nome prodotto/ASIN.
     let resolvedQuery = query.trim();
     if (isUrl(resolvedQuery)) {
       resolvedQuery = await resolveShortLink(resolvedQuery);
     }
 
-    const tavilyResults = await searchTavily(resolvedQuery, 10);
+    // 1. Ricerca multi-negozio su Tavily (generica + negozi principali)
+    const tavilyResults = await searchTavilyMultiStore(resolvedQuery, 6, 2);
 
     if (!tavilyResults.length) {
       return res.status(404).json({ error: 'common.noResultsFound' });
     }
 
-    const searchResultsText = prepareResultsForGroq(tavilyResults, 5, 900);
+    // 2. Riduzione dati: fino a 8 risultati (più negozi coperti), ognuno
+    // troncato -> continua a evitare il 413 su Groq
+    const searchResultsText = prepareResultsForGroq(tavilyResults, 8, 700);
 
+    // 3. Analisi con Groq, con lo schema completo (offers, reviews, truthCheck...)
     const analysis = await callGemini(resolvedQuery, searchResultsText, language);
 
+    // 4. Storico prezzi: salva uno snapshot e restituisci l'accumulo reale
     if (analysis && analysis.id && typeof analysis.currentPrice === 'number') {
       const history = recordPriceSnapshot(analysis.id, analysis.currentPrice);
       analysis.priceHistory = history;
