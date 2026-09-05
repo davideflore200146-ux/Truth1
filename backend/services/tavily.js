@@ -1,16 +1,14 @@
 // backend/services/tavily.js
 //
-// Servizio di ricerca web tramite Tavily.
-// Obiettivo: restituire risultati "leggeri" (snippet troncati) così che il
-// payload passato a Groq non superi mai il limite di request size (causa
-// dell'errore 413 "Request Body Too Large"), e includere ricerche mirate
-// sui principali negozi per popolare il confronto prezzi ("offers").
+// Servizio di ricerca web tramite Tavily: ricerca (search) ed estrazione
+// contenuto pagina (extract). L'estrazione usa il crawler di Tavily invece
+// di scaricare le pagine dal nostro server, perché siti come Amazon spesso
+// bloccano le richieste provenienti da IP di hosting (es. Render).
 
-const TAVILY_API_URL = 'https://api.tavily.com/search';
+const TAVILY_SEARCH_URL = 'https://api.tavily.com/search';
+const TAVILY_EXTRACT_URL = 'https://api.tavily.com/extract';
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 
-// Negozi principali su cui cerchiamo esplicitamente un prezzo, oltre alla
-// ricerca generica. Modifica/aggiungi in base ai negozi che vuoi coprire.
 const STORE_QUERIES = [
   (q) => `${q} prezzo Amazon`,
   (q) => `${q} prezzo MediaWorld`,
@@ -23,7 +21,7 @@ async function tavilyRequest(query, maxResults) {
     throw new Error('TAVILY_API_KEY mancante nelle variabili d\'ambiente');
   }
 
-  const response = await fetch(TAVILY_API_URL, {
+  const response = await fetch(TAVILY_SEARCH_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -45,20 +43,10 @@ async function tavilyRequest(query, maxResults) {
   return data.results || [];
 }
 
-/**
- * Ricerca generica (comportamento originale): usata anche per identità del
- * prodotto, recensioni, data di uscita, ecc.
- */
 async function searchTavily(query, maxResults = 10) {
   return tavilyRequest(query, maxResults);
 }
 
-/**
- * Ricerca "multi-negozio": fa la ricerca generica PIÙ una ricerca mirata per
- * ciascun negozio in STORE_QUERIES, poi unisce e deduplica per URL. Se una
- * ricerca mirata fallisce o non trova nulla, viene semplicemente ignorata
- * (non blocca le altre).
- */
 async function searchTavilyMultiStore(query, maxResultsGeneral = 6, maxResultsPerStore = 2) {
   const searches = [
     tavilyRequest(query, maxResultsGeneral),
@@ -83,8 +71,49 @@ async function searchTavilyMultiStore(query, maxResultsGeneral = 6, maxResultsPe
 }
 
 /**
- * Prepara i risultati Tavily per essere inviati a Groq (invariato).
+ * Usa il crawler di Tavily per leggere il contenuto di una pagina (es. una
+ * pagina prodotto Amazon), invece di scaricarla direttamente dal nostro
+ * server. Restituisce { title, content } oppure null se fallisce.
  */
+async function extractUrlContent(url) {
+  if (!TAVILY_API_KEY) {
+    throw new Error('TAVILY_API_KEY mancante nelle variabili d\'ambiente');
+  }
+
+  try {
+    const response = await fetch(TAVILY_EXTRACT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: TAVILY_API_KEY,
+        urls: [url],
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`[tavily.extractUrlContent] Tavily Extract ha risposto ${response.status}: ${errText}`);
+      return null;
+    }
+
+    const data = await response.json();
+    const result = data.results && data.results[0];
+    if (!result || !result.raw_content) return null;
+
+    const rawContent = result.raw_content.trim();
+    // Prima riga non vuota come "titolo" approssimativo della pagina
+    const firstLine = rawContent.split('\n').map((l) => l.trim()).find((l) => l.length > 5) || '';
+
+    return {
+      title: firstLine.slice(0, 150),
+      content: rawContent.slice(0, 1200),
+    };
+  } catch (err) {
+    console.error('[tavily.extractUrlContent] errore:', err.message);
+    return null;
+  }
+}
+
 function prepareResultsForGroq(tavilyResults, maxResults = 5, maxCharsPerResult = 900) {
   return tavilyResults
     .slice(0, maxResults)
@@ -98,5 +127,6 @@ function prepareResultsForGroq(tavilyResults, maxResults = 5, maxCharsPerResult 
 module.exports = {
   searchTavily,
   searchTavilyMultiStore,
+  extractUrlContent,
   prepareResultsForGroq,
 };
