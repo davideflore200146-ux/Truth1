@@ -1,7 +1,9 @@
 // backend/routes/analyze.js
 //
 // Endpoint POST /api/analyze
-// Flusso: query utente -> (se è un link corto, risolvi il redirect) -> Tavily (ricerca multi-negozio) -> Groq (analisi) -> risposta + storico prezzi salvato in db.json
+// Flusso: query utente -> (se è un link, risolvi redirect ed estrai il nome
+// prodotto dalla pagina) -> Tavily (ricerca multi-negozio) -> Groq (analisi)
+// -> risposta + storico prezzi salvato in db.json
 
 const express = require('express');
 const router = express.Router();
@@ -24,7 +26,7 @@ const LANGUAGE_NAMES = {
 };
 
 // Risolve i link corti (amzn.eu, amzn.to, bit.ly, ecc.) seguendo i redirect,
-// così Tavily riceve sempre l'URL finale con il vero nome del prodotto.
+// per ottenere l'URL finale della pagina prodotto.
 async function resolveShortLink(url) {
   try {
     const response = await fetch(url, { method: 'HEAD', redirect: 'follow' });
@@ -37,6 +39,35 @@ async function resolveShortLink(url) {
       return url;
     }
   }
+}
+
+// Scarica la pagina prodotto ed estrae un nome leggibile (og:title o
+// <title>), perché cercare su Tavily un URL pieno di parametri tecnici
+// (ref=, th=1, session id...) non produce risultati utili.
+async function extractProductNameFromUrl(url) {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+      },
+    });
+    const html = await response.text();
+
+    const ogMatch = html.match(
+      /<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i
+    );
+    if (ogMatch && ogMatch[1]) return ogMatch[1].trim();
+
+    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    if (titleMatch && titleMatch[1]) {
+      // Pulisce suffissi tipici tipo " : Amazon.it: ..." o " - Amazon.it"
+      return titleMatch[1].split(/[:\-–]\s*Amazon/i)[0].trim();
+    }
+  } catch (err) {
+    // Se la pagina non è raggiungibile o blocca lo scraping, si torna all'URL
+  }
+  return null;
 }
 
 function isUrl(text) {
@@ -100,8 +131,7 @@ ${searchResultsText}`;
 }
 
 // Salva uno snapshot di prezzo per il prodotto e restituisce lo storico
-// accumulato finora. Nessuna fonte gratuita dà uno storico prezzi reale:
-// TRUTH lo costruisce da sé, un punto per ogni analisi effettuata.
+// accumulato finora.
 function recordPriceSnapshot(productId, price) {
   if (!productId || typeof price !== 'number') return [];
 
@@ -131,11 +161,18 @@ router.post('/analyze', async (req, res) => {
   }
 
   try {
-    // 0. Se l'utente ha inviato un link corto (amzn.eu, amzn.to, ecc.),
-    // risolvi il redirect per ottenere l'URL vero con nome prodotto/ASIN.
     let resolvedQuery = query.trim();
+
     if (isUrl(resolvedQuery)) {
+      // 0a. Risolve i link corti seguendo i redirect
       resolvedQuery = await resolveShortLink(resolvedQuery);
+
+      // 0b. Estrae il nome vero del prodotto dalla pagina, invece di
+      // usare l'URL intero come query di ricerca
+      const productName = await extractProductNameFromUrl(resolvedQuery);
+      if (productName) {
+        resolvedQuery = productName;
+      }
     }
 
     // 1. Ricerca multi-negozio su Tavily (generica + negozi principali)
