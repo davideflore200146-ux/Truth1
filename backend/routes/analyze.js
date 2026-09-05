@@ -1,13 +1,17 @@
 // backend/routes/analyze.js
 //
 // Endpoint POST /api/analyze
-// Flusso: query utente -> (se è un link, risolvi redirect + estrai slug o
-// ASIN dal link) -> Tavily (ricerca multi-negozio) -> Groq (analisi) ->
-// risposta + storico prezzi salvato in db.json
+// Flusso: query utente -> (se è un link, risolvi redirect + leggi la pagina
+// tramite il crawler di Tavily) -> Tavily (ricerca multi-negozio) -> Groq
+// (analisi) -> risposta + storico prezzi salvato in db.json
 
 const express = require('express');
 const router = express.Router();
-const { searchTavilyMultiStore, prepareResultsForGroq } = require('../services/tavily');
+const {
+  searchTavilyMultiStore,
+  extractUrlContent,
+  prepareResultsForGroq,
+} = require('../services/tavily');
 const { ANALYSIS_SYSTEM_PROMPT } = require('../services/prompts');
 const db = require('../db');
 
@@ -28,9 +32,6 @@ const LANGUAGE_NAMES = {
   pt: 'Portuguese',
 };
 
-// Risolve i link corti (amzn.eu, amzn.to, bit.ly, ecc.) seguendo i redirect.
-// Usa un User-Agent da browser reale: senza, molti servizi (Amazon incluso)
-// bloccano o non reindirizzano correttamente le richieste automatiche.
 async function resolveShortLink(url) {
   try {
     const response = await fetch(url, {
@@ -44,22 +45,6 @@ async function resolveShortLink(url) {
     console.error(`[resolveShortLink] fallito per "${url}":`, err.message);
     return url;
   }
-}
-
-// Estrae lo slug leggibile dall'URL Amazon, quando presente.
-function extractSlugFromAmazonUrl(url) {
-  const match = url.match(/amazon\.[a-z.]+\/([^/?]+)\/(?:dp|gp\/product)\//i);
-  if (match && match[1]) {
-    const slug = decodeURIComponent(match[1]).replace(/-/g, ' ').trim();
-    if (slug.length > 5 && !/^dp$/i.test(slug)) return slug;
-  }
-  return null;
-}
-
-// Estrae il codice ASIN dall'URL, anche quando manca lo slug.
-function extractAsin(url) {
-  const match = url.match(/\/(?:dp|gp\/product)\/([A-Z0-9]{10})/i);
-  return match ? match[1] : null;
 }
 
 function isUrl(text) {
@@ -149,26 +134,40 @@ router.post('/analyze', async (req, res) => {
 
   try {
     let resolvedQuery = query.trim();
+    let pageExtract = null;
     console.log(`[analyze] query ricevuta dal frontend: "${resolvedQuery}"`);
 
     if (isUrl(resolvedQuery)) {
       const expandedUrl = await resolveShortLink(resolvedQuery);
 
-      const slug = extractSlugFromAmazonUrl(expandedUrl);
-      if (slug) {
-        resolvedQuery = slug;
-        console.log(`[analyze] slug estratto dall'URL: "${resolvedQuery}"`);
+      // Legge la pagina tramite il crawler di Tavily (molto più affidabile
+      // di una fetch diretta dal nostro server verso Amazon)
+      pageExtract = await extractUrlContent(expandedUrl);
+
+      if (pageExtract && pageExtract.title) {
+        resolvedQuery = pageExtract.title;
+        console.log(`[analyze] titolo estratto dalla pagina: "${resolvedQuery}"`);
       } else {
-        const asin = extractAsin(expandedUrl);
-        resolvedQuery = asin ? `Amazon ${asin}` : expandedUrl;
-        console.log(`[analyze] nessuno slug trovato, uso: "${resolvedQuery}"`);
+        resolvedQuery = expandedUrl;
+        console.log('[analyze] estrazione fallita, uso URL espanso come query');
       }
     }
 
     console.log(`[analyze] query finale mandata a Tavily: "${resolvedQuery}"`);
 
     const tavilyResults = await searchTavilyMultiStore(resolvedQuery, 6, 2);
-    console.log(`[analyze] Tavily ha restituito ${tavilyResults.length} risultati`);
+
+    // Se abbiamo estratto il contenuto reale della pagina, lo aggiungiamo
+    // sempre come primo risultato, anche se la ricerca generica fallisce
+    if (pageExtract && pageExtract.content) {
+      tavilyResults.unshift({
+        title: pageExtract.title,
+        url: query.trim(),
+        content: pageExtract.content,
+      });
+    }
+
+    console.log(`[analyze] risultati totali disponibili per Groq: ${tavilyResults.length}`);
 
     if (!tavilyResults.length) {
       return res.status(404).json({ error: 'common.noResultsFound' });
