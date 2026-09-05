@@ -1,9 +1,9 @@
 // backend/routes/analyze.js
 //
 // Endpoint POST /api/analyze
-// Flusso: query utente -> (se è un link, risolvi redirect ed estrai il nome
-// prodotto dalla pagina) -> Tavily (ricerca multi-negozio) -> Groq (analisi)
-// -> risposta + storico prezzi salvato in db.json
+// Flusso: query utente -> (se è un link, risolvi redirect + estrai slug o
+// ASIN dal link) -> Tavily (ricerca multi-negozio) -> Groq (analisi) ->
+// risposta + storico prezzi salvato in db.json
 
 const express = require('express');
 const router = express.Router();
@@ -41,33 +41,22 @@ async function resolveShortLink(url) {
   }
 }
 
-// Scarica la pagina prodotto ed estrae un nome leggibile (og:title o
-// <title>), perché cercare su Tavily un URL pieno di parametri tecnici
-// (ref=, th=1, session id...) non produce risultati utili.
-async function extractProductNameFromUrl(url) {
-  try {
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
-      },
-    });
-    const html = await response.text();
-
-    const ogMatch = html.match(
-      /<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i
-    );
-    if (ogMatch && ogMatch[1]) return ogMatch[1].trim();
-
-    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-    if (titleMatch && titleMatch[1]) {
-      // Pulisce suffissi tipici tipo " : Amazon.it: ..." o " - Amazon.it"
-      return titleMatch[1].split(/[:\-–]\s*Amazon/i)[0].trim();
-    }
-  } catch (err) {
-    // Se la pagina non è raggiungibile o blocca lo scraping, si torna all'URL
+// Estrae lo slug leggibile dall'URL Amazon, quando presente
+// (es. amazon.it/Roborock-Qrevo-S-Pro-Aspirapolvere/dp/B0XXXXXXXX -> "Roborock Qrevo S Pro Aspirapolvere")
+function extractSlugFromAmazonUrl(url) {
+  const match = url.match(/amazon\.[a-z.]+\/([^/?]+)\/(?:dp|gp\/product)\//i);
+  if (match && match[1]) {
+    const slug = decodeURIComponent(match[1]).replace(/-/g, ' ').trim();
+    if (slug.length > 5 && !/^dp$/i.test(slug)) return slug;
   }
   return null;
+}
+
+// Estrae il codice ASIN (identificativo prodotto Amazon) dall'URL, sempre
+// presente anche nei link brevi risolti, anche quando manca lo slug.
+function extractAsin(url) {
+  const match = url.match(/\/(?:dp|gp\/product)\/([A-Z0-9]{10})/i);
+  return match ? match[1] : null;
 }
 
 function isUrl(text) {
@@ -75,8 +64,6 @@ function isUrl(text) {
 }
 
 // Mantiene il nome storico callGemini per compatibilità col resto del progetto.
-// Usa lo schema completo definito in services/prompts.js (offers, reviews,
-// truthCheck...), lo stesso che il frontend si aspetta.
 async function callGemini(query, searchResultsText, languageCode = 'it') {
   if (!GROQ_API_KEY) {
     throw new Error('GROQ_API_KEY mancante nelle variabili d\'ambiente');
@@ -130,8 +117,6 @@ ${searchResultsText}`;
   }
 }
 
-// Salva uno snapshot di prezzo per il prodotto e restituisce lo storico
-// accumulato finora.
 function recordPriceSnapshot(productId, price) {
   if (!productId || typeof price !== 'number') return [];
 
@@ -165,13 +150,18 @@ router.post('/analyze', async (req, res) => {
 
     if (isUrl(resolvedQuery)) {
       // 0a. Risolve i link corti seguendo i redirect
-      resolvedQuery = await resolveShortLink(resolvedQuery);
+      const expandedUrl = await resolveShortLink(resolvedQuery);
 
-      // 0b. Estrae il nome vero del prodotto dalla pagina, invece di
-      // usare l'URL intero come query di ricerca
-      const productName = await extractProductNameFromUrl(resolvedQuery);
-      if (productName) {
-        resolvedQuery = productName;
+      // 0b. Prova prima lo slug leggibile nell'URL...
+      const slug = extractSlugFromAmazonUrl(expandedUrl);
+      if (slug) {
+        resolvedQuery = slug;
+      } else {
+        // ...altrimenti usa l'ASIN come termine di ricerca (funziona anche
+        // quando il link non contiene il nome prodotto, senza dover
+        // scaricare la pagina Amazon, che spesso blocca lo scraping)
+        const asin = extractAsin(expandedUrl);
+        resolvedQuery = asin ? `Amazon ${asin}` : expandedUrl;
       }
     }
 
@@ -182,8 +172,7 @@ router.post('/analyze', async (req, res) => {
       return res.status(404).json({ error: 'common.noResultsFound' });
     }
 
-    // 2. Riduzione dati: fino a 8 risultati (più negozi coperti), ognuno
-    // troncato -> continua a evitare il 413 su Groq
+    // 2. Riduzione dati: fino a 8 risultati, ognuno troncato -> evita il 413 su Groq
     const searchResultsText = prepareResultsForGroq(tavilyResults, 8, 700);
 
     // 3. Analisi con Groq, con lo schema completo (offers, reviews, truthCheck...)
