@@ -186,7 +186,6 @@ if (response.ok) {
     `[Groq] Risposta ricevuta (${rawContent.length} caratteri)`
   );
 
-  // DIAGNOSTICA: mostra il contenuto ESATTO restituito da Groq
   console.log(
     '[Groq] ===== JSON GREZZO RESTITUITO ====='
   );
@@ -198,10 +197,10 @@ if (response.ok) {
   try {
     const parsedContent = JSON.parse(rawContent);
 
-    // DIAGNOSTICA: mostra l'oggetto JSON dopo il parsing
     console.log(
       '[Groq] ===== JSON PARSATO ====='
     );
+
     console.log(
       JSON.stringify(
         parsedContent,
@@ -209,11 +208,11 @@ if (response.ok) {
         2
       )
     );
+
     console.log(
       '[Groq] ===== FINE JSON PARSATO ====='
     );
 
-    // DIAGNOSTICA: mostra specificamente prezzi e offerte
     console.log(
       '[Groq] currentPrice:',
       parsedContent?.currentPrice
@@ -450,10 +449,10 @@ console.log(
   '[analyze] analisi Groq completata'
 );
 
-// DIAGNOSTICA: mostra l'oggetto ESATTO che il backend sta per restituire all'app
 console.log(
   '[analyze] ===== RISPOSTA FINALE INVIATA A TRUTH-APP ====='
 );
+
 console.log(
   JSON.stringify(
     analysis,
@@ -461,6 +460,7 @@ console.log(
     2
   )
 );
+
 console.log(
   '[analyze] ===== FINE RISPOSTA FINALE ====='
 );
