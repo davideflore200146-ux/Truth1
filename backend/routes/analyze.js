@@ -125,7 +125,7 @@ function recordPriceSnapshot(productId, price) {
   return history;
 }
 
-router.post('/analyze', async (req, res) => {
+router.post('/', async (req, res) => {
   const { query, language } = req.body;
 
   if (!query || typeof query !== 'string' || !query.trim()) {
