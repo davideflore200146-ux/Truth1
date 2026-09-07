@@ -39,10 +39,18 @@ async function resolveShortLink(url) {
       redirect: 'follow',
       headers: { 'User-Agent': BROWSER_USER_AGENT },
     });
-    console.log(`[resolveShortLink] "${url}" -> "${response.url}" (status ${response.status})`);
+
+    console.log(
+      `[resolveShortLink] "${url}" -> "${response.url}" (status ${response.status})`
+    );
+
     return response.url || url;
   } catch (err) {
-    console.error(`[resolveShortLink] fallito per "${url}":`, err.message);
+    console.error(
+      `[resolveShortLink] fallito per "${url}":`,
+      err.message
+    );
+
     return url;
   }
 }
@@ -53,7 +61,9 @@ function isUrl(text) {
 
 async function callGemini(query, searchResultsText, languageCode = 'it') {
   if (!GROQ_API_KEY) {
-    throw new Error('GROQ_API_KEY mancante nelle variabili d\'ambiente');
+    throw new Error(
+      "GROQ_API_KEY mancante nelle variabili d'ambiente"
+    );
   }
 
   const languageName = LANGUAGE_NAMES[languageCode] || 'Italian';
@@ -75,91 +85,156 @@ ${searchResultsText}`;
     },
     body: JSON.stringify({
       model: GROQ_MODEL,
+
       messages: [
-        { role: 'system', content: ANALYSIS_SYSTEM_PROMPT },
-        { role: 'user', content: userPrompt },
+        {
+          role: 'system',
+          content: ANALYSIS_SYSTEM_PROMPT,
+        },
+        {
+          role: 'user',
+          content: userPrompt,
+        },
       ],
-      temperature: 0.3,
-      max_tokens: 1800,
-      response_format: { type: 'json_object' },
+
+      temperature: 0.2,
+
+      // Ridotto per evitare di superare il limite TPM
+      max_tokens: 1200,
+
+      // Riduce il ragionamento interno del modello
+      reasoning_effort: 'low',
+
+      response_format: {
+        type: 'json_object',
+      },
     }),
   });
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`Groq API ha risposto ${response.status}: ${errText}`);
+
+    throw new Error(
+      `Groq API ha risposto ${response.status}: ${errText}`
+    );
   }
 
   const data = await response.json();
-  const rawContent = data.choices?.[0]?.message?.content;
+
+  const rawContent =
+    data.choices?.[0]?.message?.content;
 
   if (!rawContent) {
-    throw new Error('Groq non ha restituito contenuto valido');
+    throw new Error(
+      'Groq non ha restituito contenuto valido'
+    );
   }
 
   try {
     return JSON.parse(rawContent);
   } catch (e) {
-    throw new Error(`Impossibile parsare la risposta JSON di Groq: ${e.message}`);
+    throw new Error(
+      `Impossibile parsare la risposta JSON di Groq: ${e.message}`
+    );
   }
 }
 
 function recordPriceSnapshot(productId, price) {
-  if (!productId || typeof price !== 'number') return [];
+  if (!productId || typeof price !== 'number') {
+    return [];
+  }
 
   const data = db.read();
-  if (!data.priceHistory) data.priceHistory = {};
-  if (!data.priceHistory[productId]) data.priceHistory[productId] = [];
+
+  if (!data.priceHistory) {
+    data.priceHistory = {};
+  }
+
+  if (!data.priceHistory[productId]) {
+    data.priceHistory[productId] = [];
+  }
 
   const today = new Date().toISOString().slice(0, 10);
+
   const history = data.priceHistory[productId];
+
   const last = history[history.length - 1];
 
   if (!last || last.date !== today) {
-    history.push({ date: today, price });
+    history.push({
+      date: today,
+      price,
+    });
   } else {
     last.price = price;
   }
 
   db.write(data);
+
   return history;
 }
 
 router.post('/', async (req, res) => {
   const { query, language } = req.body;
 
-  if (!query || typeof query !== 'string' || !query.trim()) {
-    return res.status(400).json({ error: 'common.missingQuery' });
+  if (
+    !query ||
+    typeof query !== 'string' ||
+    !query.trim()
+  ) {
+    return res.status(400).json({
+      error: 'common.missingQuery',
+    });
   }
 
   try {
     let resolvedQuery = query.trim();
+
     let pageExtract = null;
-    console.log(`[analyze] query ricevuta dal frontend: "${resolvedQuery}"`);
+
+    console.log(
+      `[analyze] query ricevuta dal frontend: "${resolvedQuery}"`
+    );
 
     if (isUrl(resolvedQuery)) {
-      const expandedUrl = await resolveShortLink(resolvedQuery);
+      const expandedUrl =
+        await resolveShortLink(resolvedQuery);
 
-      // Legge la pagina tramite il crawler di Tavily (molto più affidabile
-      // di una fetch diretta dal nostro server verso Amazon)
-      pageExtract = await extractUrlContent(expandedUrl);
+      pageExtract =
+        await extractUrlContent(expandedUrl);
 
       if (pageExtract && pageExtract.title) {
         resolvedQuery = pageExtract.title;
-        console.log(`[analyze] titolo estratto dalla pagina: "${resolvedQuery}"`);
+
+        console.log(
+          `[analyze] titolo estratto dalla pagina: "${resolvedQuery}"`
+        );
       } else {
         resolvedQuery = expandedUrl;
-        console.log('[analyze] estrazione fallita, uso URL espanso come query');
+
+        console.log(
+          '[analyze] estrazione fallita, uso URL espanso come query'
+        );
       }
     }
 
-    console.log(`[analyze] query finale mandata a Tavily: "${resolvedQuery}"`);
+    console.log(
+      `[analyze] query finale mandata a Tavily: "${resolvedQuery}"`
+    );
 
-    const tavilyResults = await searchTavilyMultiStore(resolvedQuery, 6, 2);
+    // Ridotto il numero di risultati per diminuire
+    // il numero di token inviati a Groq.
+    const tavilyResults =
+      await searchTavilyMultiStore(
+        resolvedQuery,
+        4,
+        1
+      );
 
-    // Se abbiamo estratto il contenuto reale della pagina, lo aggiungiamo
-    // sempre come primo risultato, anche se la ricerca generica fallisce
-    if (pageExtract && pageExtract.content) {
+    if (
+      pageExtract &&
+      pageExtract.content
+    ) {
       tavilyResults.unshift({
         title: pageExtract.title,
         url: query.trim(),
@@ -167,25 +242,61 @@ router.post('/', async (req, res) => {
       });
     }
 
-    console.log(`[analyze] risultati totali disponibili per Groq: ${tavilyResults.length}`);
+    console.log(
+      `[analyze] risultati totali disponibili per Groq: ${tavilyResults.length}`
+    );
 
     if (!tavilyResults.length) {
-      return res.status(404).json({ error: 'common.noResultsFound' });
+      return res.status(404).json({
+        error: 'common.noResultsFound',
+      });
     }
 
-    const searchResultsText = prepareResultsForGroq(tavilyResults, 8, 700);
+    // Massimo 5 risultati e massimo 450 caratteri
+    // per risultato.
+    const searchResultsText =
+      prepareResultsForGroq(
+        tavilyResults,
+        5,
+        450
+      );
 
-    const analysis = await callGemini(resolvedQuery, searchResultsText, language);
+    console.log(
+      `[analyze] caratteri inviati a Groq: ${searchResultsText.length}`
+    );
 
-    if (analysis && analysis.id && typeof analysis.currentPrice === 'number') {
-      const history = recordPriceSnapshot(analysis.id, analysis.currentPrice);
+    const analysis =
+      await callGemini(
+        resolvedQuery,
+        searchResultsText,
+        language
+      );
+
+    if (
+      analysis &&
+      analysis.id &&
+      typeof analysis.currentPrice === 'number'
+    ) {
+      const history =
+        recordPriceSnapshot(
+          analysis.id,
+          analysis.currentPrice
+        );
+
       analysis.priceHistory = history;
     }
 
     return res.json(analysis);
   } catch (err) {
-    console.error('Errore /api/analyze:', err.message);
-    return res.status(500).json({ error: 'common.analysisFailed', detail: err.message });
+    console.error(
+      'Errore /api/analyze:',
+      err.message
+    );
+
+    return res.status(500).json({
+      error: 'common.analysisFailed',
+      detail: err.message,
+    });
   }
 });
 
