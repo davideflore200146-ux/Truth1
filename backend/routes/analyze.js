@@ -34,7 +34,7 @@ return new Promise(resolve => setTimeout(resolve, ms));
 function isUrl(text) {
 const value = String(text || '').trim();
 
-return /^https?://\S+$/i.test(value);
+return /^https?:\/\/\S+$/i.test(value);
 }
 
 async function resolveShortLink(url) {
