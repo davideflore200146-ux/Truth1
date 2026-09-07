@@ -102,11 +102,7 @@ Restituisci esclusivamente JSON valido secondo il formato richiesto dal system p
     ],
 
     temperature: 0.1,
-
-    // Output volutamente contenuto per ridurre il consumo TPM.
-    max_tokens: 700,
-
-    // Riduce il ragionamento interno.
+    max_tokens: 500,
     reasoning_effort: 'low',
 
     response_format: {
@@ -117,22 +113,60 @@ Restituisci esclusivamente JSON valido secondo il formato richiesto dal system p
   const MAX_RETRIES = 3;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    const response = await fetch(GROQ_API_URL, {
-      method: 'POST',
+    let response;
 
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${GROQ_API_KEY}`,
-      },
+    try {
+      const controller = new AbortController();
 
-      body: JSON.stringify(requestBody),
-    });
+      const timeout = setTimeout(() => {
+        controller.abort();
+      }, 45000);
+
+      try {
+        console.log(
+          `[Groq] Invio richiesta. Tentativo ${attempt + 1}/${MAX_RETRIES + 1}`
+        );
+
+        response = await fetch(GROQ_API_URL, {
+          method: 'POST',
+
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${GROQ_API_KEY}`,
+          },
+
+          body: JSON.stringify(requestBody),
+
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        throw new Error(
+          'Groq ha impiegato troppo tempo a rispondere (timeout di 45 secondi)'
+        );
+      }
+
+      throw new Error(
+        `Errore di connessione a Groq: ${err.message}`
+      );
+    }
 
     if (response.ok) {
-      const data = await response.json();
+      let data;
+
+      try {
+        data = await response.json();
+      } catch (err) {
+        throw new Error(
+          `Groq ha restituito una risposta non valida: ${err.message}`
+        );
+      }
 
       const rawContent =
-        data.choices?.[0]?.message?.content;
+        data?.choices?.[0]?.message?.content;
 
       if (!rawContent) {
         throw new Error(
@@ -140,18 +174,30 @@ Restituisci esclusivamente JSON valido secondo il formato richiesto dal system p
         );
       }
 
+      console.log(
+        `[Groq] Risposta ricevuta (${rawContent.length} caratteri)`
+      );
+
       try {
         return JSON.parse(rawContent);
-      } catch (e) {
+      } catch (err) {
+        console.error(
+          '[Groq] JSON non valido:',
+          rawContent
+        );
+
         throw new Error(
-          `Impossibile parsare la risposta JSON di Groq: ${e.message}`
+          `Impossibile parsare la risposta JSON di Groq: ${err.message}`
         );
       }
     }
 
     const errText = await response.text();
 
-    // Gestione automatica del limite TPM di Groq.
+    console.error(
+      `[Groq] HTTP ${response.status}: ${errText}`
+    );
+
     if (response.status === 429 && attempt < MAX_RETRIES) {
       let waitMs = 7000;
 
@@ -170,25 +216,19 @@ Restituisci esclusivamente JSON valido secondo il formato richiesto dal system p
           waitMs =
             Math.ceil(
               parseFloat(secondsMatch[1]) * 1000
-            ) + 1000;
+            ) + 1500;
         }
       } catch (_) {
-        // Se non riusciamo a leggere il JSON,
-        // utilizziamo il tempo predefinito.
+        // Usiamo il valore predefinito.
       }
 
-      // Evita attese eccessivamente lunghe.
       waitMs = Math.min(
         Math.max(waitMs, 5000),
-        15000
+        20000
       );
 
       console.log(
-        `[Groq] Rate limit 429. Tentativo ${
-          attempt + 1
-        }/${MAX_RETRIES}. Nuovo tentativo tra ${
-          waitMs / 1000
-        } secondi.`
+        `[Groq] Rate limit 429. Attendo ${waitMs / 1000} secondi prima del nuovo tentativo.`
       );
 
       await sleep(waitMs);
@@ -269,8 +309,6 @@ router.post('/', async (req, res) => {
       `[analyze] query ricevuta dal frontend: "${resolvedQuery}"`
     );
 
-    // Se l'utente inserisce un link,
-    // proviamo a risolverlo e a leggere la pagina.
     if (isUrl(resolvedQuery)) {
       const expandedUrl =
         await resolveShortLink(
@@ -306,8 +344,6 @@ router.post('/', async (req, res) => {
       `[analyze] query finale mandata a Tavily: "${resolvedQuery}"`
     );
 
-    // Ricerca molto più contenuta:
-    // 3 risultati generali + 1 per negozio.
     const tavilyResults =
       await searchTavilyMultiStore(
         resolvedQuery,
@@ -336,9 +372,6 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Limite molto più aggressivo:
-    // massimo 4 risultati,
-    // massimo 300 caratteri ciascuno.
     const searchResultsText =
       prepareResultsForGroq(
         tavilyResults,
@@ -350,12 +383,20 @@ router.post('/', async (req, res) => {
       `[analyze] caratteri inviati a Groq: ${searchResultsText.length}`
     );
 
+    console.log(
+      '[analyze] avvio analisi Groq...'
+    );
+
     const analysis =
       await callGroq(
         resolvedQuery,
         searchResultsText,
         language
       );
+
+    console.log(
+      '[analyze] analisi Groq completata'
+    );
 
     if (
       analysis &&
@@ -377,12 +418,12 @@ router.post('/', async (req, res) => {
   } catch (err) {
     console.error(
       'Errore /api/analyze:',
-      err.message
+      err
     );
 
     return res.status(500).json({
       error: 'common.analysisFailed',
-      detail: err.message,
+      detail: err.message || 'Errore sconosciuto',
     });
   }
 });
